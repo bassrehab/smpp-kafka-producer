@@ -18,7 +18,7 @@ public class SMS {
     private String msisdn; // Destination Address
     private String keyword;
     private String value;
-    private String extradata; // --- Change Request: 9/11/2017 for additional payload -- //
+    private String extradata; // for additional payload -- //
     private String timestamp;
     private String has_parsing_errors;
     private String payload;
@@ -50,7 +50,7 @@ public class SMS {
             this.keyword = smsContent.get(0).trim();
             this.value = smsContent.get(1).trim();
 
-            // --- Change Request: 9/11/2017 for additional payload -- //
+            // for additional payload -- //
 
             try{
                 this.extradata =  smsContent.get(2).trim();
@@ -73,7 +73,7 @@ public class SMS {
         this.payload = this.msisdn + COMMA
                 + this.keyword + COMMA
                 + this.value + COMMA
-                + this.extradata + COMMA // -- Added :9/11/2017
+                + this.extradata + COMMA
                 + this.timestamp;
 
     }

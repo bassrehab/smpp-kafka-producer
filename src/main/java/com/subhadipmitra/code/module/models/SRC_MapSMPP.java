@@ -1,4 +1,4 @@
-package com.subhadipmitra.code.module.common.models;
+package com.subhadipmitra.code.module.models;
 
 /**
  * Created by Subhadip Mitra <contact@subhadipmitra.com>  on 20/08/17.
@@ -20,7 +20,7 @@ public class SRC_MapSMPP {
 
     public String has_parsing_errors;
 
-    /** Specifics from SOAP reqs.
+    /** Specifics from SMPP reqs.
      * If these contain errors,
      * this shall be set to null or ''*/
     public String msisdn;
@@ -47,5 +47,23 @@ public class SRC_MapSMPP {
         this.value = value;
         this.extradata = extradata;
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public String toString() {
+        return "SRC_MapSMPP{" +
+                "id='" + id + '\'' +
+                ", srcId='" + srcId + '\'' +
+                ", payload='" + payload + '\'' +
+                ", entryTime=" + entryTime +
+                ", isProcessed='" + isProcessed + '\'' +
+                ", batchId='" + batchId + '\'' +
+                ", has_parsing_errors='" + has_parsing_errors + '\'' +
+                ", msisdn='" + msisdn + '\'' +
+                ", keyword='" + keyword + '\'' +
+                ", value='" + value + '\'' +
+                ", extradata='" + extradata + '\'' +
+                ", timestamp='" + timestamp + '\'' +
+                '}';
     }
 }

@@ -26,4 +26,17 @@ public class SRC_MapTelemetry {
         this.firstRecordId = firstRecordId;
         this.landingTime = landingTime;
     }
+
+    @Override
+    public String toString() {
+        return "SRC_MapTelemetry{" +
+                "batchId='" + batchId + '\'' +
+                ", batchWindow='" + batchWindow + '\'' +
+                ", srcName='" + srcName + '\'' +
+                ", srcId='" + srcId + '\'' +
+                ", recordsProcessed=" + recordsProcessed +
+                ", firstRecordId='" + firstRecordId + '\'' +
+                ", landingTime=" + landingTime +
+                '}';
+    }
 }

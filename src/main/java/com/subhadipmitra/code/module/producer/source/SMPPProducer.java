@@ -5,7 +5,7 @@ import com.subhadipmitra.code.module.producer.telemetry.TelemetryProducer;
 import com.subhadipmitra.code.module.common.utilities.PeriodicUUID;
 import com.subhadipmitra.code.module.common.utilities.UniqueId;
 import com.subhadipmitra.code.module.models.SMS;
-import com.subhadipmitra.code.module.common.models.SRC_MapSMPP;
+import com.subhadipmitra.code.module.models.SRC_MapSMPP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
