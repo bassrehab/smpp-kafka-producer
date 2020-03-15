@@ -2,81 +2,12 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="e8f46bc7-dd99-4fe1-a683-c94754e26f90" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_cloudhopper_ch_commons_charset_3_0_2.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__com_yammer_metrics_metrics_core_2_2_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__javax_annotation_jsr250_api_1_0.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__joda_time_joda_time_2_10_5.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__log4j_log4j_1_2_17.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/libraries/Maven__org_hamcrest_hamcrest_core_1_3.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/uiDesigner.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/LICENSE.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/run.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings/config.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings/context.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings/log4j.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/smpp-kafka-producer.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/common/models/SRC_MapSMPP.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/common/utilities/DaemonExecutors.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/common/utilities/PeriodicUUID.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/common/utilities/UniqueId.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/common/utilities/Utilities.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/initialize/ConfigurationsSourceSMPP.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/loader/ConfigLoaderClasspath.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/loader/ConfigLoaderExternal.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/auto/DelayedRequestSenderImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/auto/RandomDeliveryReceiptScheduler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/auto/ResponseMessageIdGeneratorImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/auto/SmppSessionManager.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/auto/SmscGlobalConfiguration.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/auto/SmscSegmentedDeliverSender.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/core/BaseSender.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/core/DeliveryReceiptScheduler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/core/ResponseMessageIdGenerator.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/core/SmscRateSender.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/message/DeliverBaseMessageFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/message/DeliverSegmentedMessageFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/message/MessageFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/package-info.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/completionservice/CompletionServiceProvider.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/completionservice/MonitorThreads.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/completionservice/RejectedExecutionHandlerImpl.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/consumer/EventsConsumer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/eventrecord/EventRecord.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/package-info.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/producer/EventsProducer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/init/Main.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/init/ServerMain.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/init/ServerMainParameters.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/init/ShutDownCleanup.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/models/SMS.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/models/SRC_MapTelemetry.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/producer/package-info.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/producer/source/SMPPProducer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/producer/telemetry/TelemetryProducer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/DelayedRecord.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/DelayedRequestSender.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/DeliveryReceiptRecord.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/FormatUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/PduRequestRecord.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/RequestSender.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/SmppPduUtils.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/SmscServer.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/SmscServerThreadPoolFactory.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/SmscSmppServerHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/server/SmscSmppSessionHandler.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/context.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/log4j.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/com/subhadipmitra/code/module/ServerMainTest.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/java/com/subhadipmitra/code/module/SmppClient.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/test/resources/config-test.properties" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/assets/smpp_session_flow.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings/config.properties" beforeDir="false" afterPath="$PROJECT_DIR$/settings/config.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings/context.xml" beforeDir="false" afterPath="$PROJECT_DIR$/settings/context.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,13 +24,16 @@
     <option name="version" value="1" />
   </component>
   <component name="ProjectId" id="1Z9FNXiFFMz7wWU77g1jbRbkhVt" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
+    <property name="ASKED_ADD_EXTERNAL_FILES" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
@@ -130,12 +64,15 @@
       <option name="presentableId" value="Default" />
       <updated>1584243363809</updated>
       <workItem from="1584243365645" duration="4746000" />
-      <workItem from="1584248274971" duration="2228000" />
+      <workItem from="1584248274971" duration="3858000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="440" y="162" width="811" height="669" key="#Project_Structure" timestamp="1584244192804">
@@ -154,9 +91,9 @@
       <screen x="0" y="23" width="1680" height="947" />
     </state>
     <state x="342" y="135" key="SettingsEditor/0.23.1680.947@0.23.1680.947" timestamp="1584248260405" />
-    <state x="498" y="132" width="837" height="729" key="find.popup" timestamp="1584247112597">
+    <state x="498" y="132" width="837" height="729" key="find.popup" timestamp="1584253470411">
       <screen x="0" y="23" width="1680" height="947" />
     </state>
-    <state x="498" y="132" width="837" height="729" key="find.popup/0.23.1680.947@0.23.1680.947" timestamp="1584247112597" />
+    <state x="498" y="132" width="837" height="729" key="find.popup/0.23.1680.947@0.23.1680.947" timestamp="1584253470411" />
   </component>
 </project>

@@ -21,8 +21,8 @@
 		<property name="defaultSessionCountersEnabled" value="true" />
 		<property name="jmxEnabled" value="true" />
 		<property name="jmxDomain" value="SMSC_1" />
-		<property name="systemId" value="vndmp"/>
-        <property name="name" value="Banglalink-Veon-DMP-SMPP-Server"/>
+		<property name="systemId" value="demosmpp"/>
+        <property name="name" value="Demo-SMPP-Server"/>
 	</bean>
 	<bean id="messageIdGenerator" class="com.subhadipmitra.code.module.controller.auto.ResponseMessageIdGeneratorImpl">
 		<property name="initialMessageIdValue" value="1" />

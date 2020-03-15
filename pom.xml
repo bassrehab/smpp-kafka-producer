@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.subhadipmitra.code.modules</groupId>
     <artifactId>smpp-kafka-producer</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>2.0.1</version>
     <properties>
         <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
