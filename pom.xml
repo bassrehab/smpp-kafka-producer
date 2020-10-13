@@ -18,7 +18,7 @@
         <javax.cache.version>1.1.1</javax.cache.version>
         <kafka.version>2.4.1</kafka.version>
         <jackson.version>2.10.3</jackson.version>
-        <junit.version>4.13</junit.version>
+        <junit.version>4.13.1</junit.version>
         <single.jar.descriptor>spring-boot</single.jar.descriptor>
         <jar.file>target/${project.artifactId}-${project.version}.jar</jar.file>
         <uber.jar.file>target/${project.artifactId}-${project.version}-${single.jar.descriptor}.jar</uber.jar.file>
