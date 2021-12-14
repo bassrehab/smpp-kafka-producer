@@ -11,7 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.springframework.version>5.2.4.RELEASE</org.springframework.version>
         <guava.version>29.0-jre</guava.version>
-        <log4j.version>1.2.17</log4j.version>
+        <log4j-core.version>2.16.0</log4j-core.version>
         <chsmp.smpp.version>5.0.9</chsmp.smpp.version>
         <jcommander.version>1.78</jcommander.version>
         <sl4j.version>2.0.0-alpha1</sl4j.version>
@@ -123,9 +123,9 @@
             <version>${sl4j.version}</version>
         </dependency>
         <dependency>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-            <version>${log4j.version}</version>
+             <groupId>org.apache.logging.log4j</groupId>
+             <artifactId>log4j-core</artifactId>
+            <version>${log4j-core.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.mail</groupId>
