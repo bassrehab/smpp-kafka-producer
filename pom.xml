@@ -9,7 +9,7 @@
     <properties>
         <jdk.version>1.8</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.springframework.version>5.3.14</org.springframework.version>
+        <org.springframework.version>5.3.18</org.springframework.version>
         <guava.version>[30.0-jre,)</guava.version>
         <log4j-core.version>2.17.1</log4j-core.version>
         <chsmp.smpp.version>5.0.9</chsmp.smpp.version>
