@@ -64,7 +64,7 @@ public class EventsConsumer implements Runnable {
 
                 Future<EventRecord> fp = service.take();
 
-                METRICS_SMPP_CONSUMER_EVENTS_RECEIVED += 1;
+                METRICS_SMPP_CONSUMER_EVENTS_RECEIVED.incrementAndGet();
 				EventRecord evt = fp.get();
 				evt.setQueueEndTime(); // Stop Queue timer
 
@@ -76,16 +76,16 @@ public class EventsConsumer implements Runnable {
 				smppProducer.sendMessage(sms);
 
 
-                METRICS_SMPP_CONSUMER_EVENTS_PROCESSED += 1;
+                METRICS_SMPP_CONSUMER_EVENTS_PROCESSED.incrementAndGet();
 
-                logger.debug("SMPP Queue[evtSent="+ METRICS_SMPP_PRODUCER_EVENTS_SENT
-                        +", evtReceived=" + METRICS_SMPP_CONSUMER_EVENTS_RECEIVED
-                        + ", evtProcessed="+ METRICS_SMPP_CONSUMER_EVENTS_PROCESSED
+                logger.debug("SMPP Queue[evtSent="+ METRICS_SMPP_PRODUCER_EVENTS_SENT.get()
+                        +", evtReceived=" + METRICS_SMPP_CONSUMER_EVENTS_RECEIVED.get()
+                        + ", evtProcessed="+ METRICS_SMPP_CONSUMER_EVENTS_PROCESSED.get()
                         +", queueWaitTime=" + evt.getQueueWaitTime() / 1000000 + " ms ]");
 
 
 			} catch (InterruptedException | ExecutionException e) {
-                e.printStackTrace();
+                logger.error("Error processing event in consumer: " + consumerName, e);
             }
         }
 	}

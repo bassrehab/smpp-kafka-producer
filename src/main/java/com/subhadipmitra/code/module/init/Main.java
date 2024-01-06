@@ -14,6 +14,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.atomic.AtomicLong;
 import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.SMPP_SERVICE_EVENTS_NAME;
 import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.SMPP_SERVICE_EVENTS_NUM_CONSUMERS;
 import static com.subhadipmitra.code.module.init.ServerMain.parseParameters;
@@ -31,20 +32,20 @@ public class Main {
     /** Utilities Instance */
     public static final Utilities utilities = new Utilities();
 
-    /** Initialize the mapper instance */
-    public static ObjectMapper mapper = new ObjectMapper();
+    /** Initialize the mapper instance (thread-safe, immutable) */
+    public static final ObjectMapper mapper = new ObjectMapper();
 
     /** Events Producer Consumer Completion Service */
     public static CompletionService compSMPPService;
 
-    /** Counter for EventsProducer Events Number, also shared by Events Consumer */
-    public static long METRICS_SMPP_PRODUCER_EVENTS_SENT = 0L;
+    /** Counter for EventsProducer Events Number, also shared by Events Consumer (thread-safe) */
+    public static final AtomicLong METRICS_SMPP_PRODUCER_EVENTS_SENT = new AtomicLong(0L);
 
-    /** Metric */
-    public static long METRICS_SMPP_CONSUMER_EVENTS_RECEIVED = 0L;
+    /** Metric (thread-safe) */
+    public static final AtomicLong METRICS_SMPP_CONSUMER_EVENTS_RECEIVED = new AtomicLong(0L);
 
-    /** Metric */
-    public static long METRICS_SMPP_CONSUMER_EVENTS_PROCESSED = 0L;
+    /** Metric (thread-safe) */
+    public static final AtomicLong METRICS_SMPP_CONSUMER_EVENTS_PROCESSED = new AtomicLong(0L);
 
 
     /** SMPP Server Setup Instance */
@@ -106,8 +107,7 @@ public class Main {
         try {
             startServer(cfg_smpp);
         } catch (Exception e) {
-            logger.error("Got Error while starting SMPP Servers");
-            e.printStackTrace();
+            logger.error("Got Error while starting SMPP Servers", e);
         }
 
 

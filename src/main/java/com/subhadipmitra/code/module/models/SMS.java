@@ -1,8 +1,9 @@
 package com.subhadipmitra.code.module.models;
 
 import com.subhadipmitra.code.module.events.service.eventrecord.EventRecord;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.SOURCE_SMPP_SMS_DELIMITER;
@@ -15,6 +16,8 @@ import static com.subhadipmitra.code.module.init.Main.utilities;
  */
 public class SMS {
     private static final String DELIMITER = SOURCE_SMPP_SMS_DELIMITER;
+    /** Thread-safe date formatter */
+    private static final DateTimeFormatter TIMESTAMP_FORMATTER = DateTimeFormatter.ofPattern("yyyy.MM.dd.HH:mm:ss.SSS");
     private String msisdn; // Destination Address
     private String keyword;
     private String value;
@@ -60,7 +63,7 @@ public class SMS {
             }
 
 
-            this.timestamp = new SimpleDateFormat("yyyy.MM.dd.HH:mm:ss.SSS").format(new Date());
+            this.timestamp = LocalDateTime.now().format(TIMESTAMP_FORMATTER);
             this.has_parsing_errors = "FALSE";
 
         }

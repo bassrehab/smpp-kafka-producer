@@ -9,8 +9,5 @@
         <module name="smpp-kafka-producer" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="smpp-kafka-producer" target="8" />
-    </bytecodeTargetLevel>
   </component>
 </project>

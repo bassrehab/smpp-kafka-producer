@@ -69,21 +69,19 @@ public class TelemetryProducer {
               landingTime
       );
 
-      String telemetry_recordJSON = null;
       try {
-          telemetry_recordJSON = mapper.writeValueAsString(telemetry_record);
+          String telemetryRecordJSON = mapper.writeValueAsString(telemetry_record);
           // send
-          producer.send(new ProducerRecord<String, String>(TELEMETRY_KAFKA_PRODUCER_TOPICS.get(0), batchId, telemetry_recordJSON), new Callback() {
-              public void onCompletion(RecordMetadata metadata, Exception e) {
-                  if (e != null) {
-                      logger.error(e.toString());
-                      e.printStackTrace();
-                  }
-                  logger.debug("TelemetryJSONRecord [offset="+ metadata.offset()+", batchId=" + batchId + ", topic=" + TELEMETRY_KAFKA_PRODUCER_TOPICS.get(0) +"]");
+          producer.send(new ProducerRecord<>(TELEMETRY_KAFKA_PRODUCER_TOPICS.get(0), batchId, telemetryRecordJSON), (metadata, e) -> {
+              if (e != null) {
+                  logger.error("Failed to send telemetry to Kafka: {}", e.getMessage(), e);
+                  return;
               }
+              logger.debug("TelemetryJSONRecord [offset={}, batchId={}, topic={}]",
+                      metadata.offset(), batchId, TELEMETRY_KAFKA_PRODUCER_TOPICS.get(0));
           });
       } catch (JsonProcessingException e) {
-          e.printStackTrace();
+          logger.error("Failed to serialize telemetry record to JSON", e);
       }
 
 

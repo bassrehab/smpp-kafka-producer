@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <Property name="LOG_PATTERN">%d{dd/MM/yyyy HH:mm:ss} %5p [%t] %c{1}: %m%n</Property>
+        <Property name="LOG_DIR">logs</Property>
+    </Properties>
+
+    <Appenders>
+        <!-- Console Appender -->
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+        </Console>
+
+        <!-- Full Log File Appender (Daily Rolling) -->
+        <RollingFile name="full"
+                     fileName="${LOG_DIR}/tr_smpp_full.log"
+                     filePattern="${LOG_DIR}/tr_smpp_full.%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
+        <!-- Error Log File Appender (Daily Rolling) -->
+        <RollingFile name="error"
+                     fileName="${LOG_DIR}/tr_smpp_error.log"
+                     filePattern="${LOG_DIR}/tr_smpp_error.%d{yyyy-MM-dd}.log">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <ThresholdFilter level="ERROR" onMatch="ACCEPT" onMismatch="DENY"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- Application Loggers -->
+        <Logger name="com.subhadipmitra" level="DEBUG" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="full"/>
+            <AppenderRef ref="error"/>
+        </Logger>
+
+        <!-- Kafka Logger - reduce verbosity -->
+        <Logger name="org.apache.kafka" level="WARN" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="full"/>
+            <AppenderRef ref="error"/>
+        </Logger>
+
+        <!-- Spring Logger -->
+        <Logger name="org.springframework" level="INFO" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="full"/>
+            <AppenderRef ref="error"/>
+        </Logger>
+
+        <!-- Cloudhopper SMPP Logger -->
+        <Logger name="com.cloudhopper" level="INFO" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="full"/>
+            <AppenderRef ref="error"/>
+        </Logger>
+
+        <!-- Root Logger -->
+        <Root level="INFO">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="full"/>
+            <AppenderRef ref="error"/>
+        </Root>
+    </Loggers>
+</Configuration>

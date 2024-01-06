@@ -15,91 +15,46 @@ import java.util.Properties;
  */
 public class ConfigLoaderClasspath {
     /** Logger Instance */
-    private static Logger logger = LoggerFactory.getLogger("ConfigLoaderClasspath");
-    
-    private String properties_file;
-    private Properties prop;
+    private static final Logger logger = LoggerFactory.getLogger(ConfigLoaderClasspath.class);
 
+    private final String propertiesFile;
+    private final Properties prop;
 
-    public ConfigLoaderClasspath(String conf_file){
-
-        this.properties_file = conf_file;
+    public ConfigLoaderClasspath(String confFile) {
+        this.propertiesFile = confFile;
         this.prop = new Properties();
-
     }
 
     public List<String> getProperty(String property, String delimiter) {
-
-        List<String> property_list = null;
-        InputStream input = null;
-
-
-        try {
-
-
-            input = ConfigLoaderClasspath.class.getClassLoader().getResourceAsStream(properties_file);
-            if(input==null){
-                logger.error("Sorry, unable to find config file: " + properties_file);
-                return property_list;
-            }
-
-            //load a properties file from class path, inside static method
-            prop.load(input);
-
-            //get the property value and print it out
-            property_list = Arrays.asList(prop.get(property).toString().split("\\s*"+ delimiter +"\\s*"));
-
-
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-
-
-        } finally{
-            if(input!=null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-        }
-
-        return property_list;
-
-    }
-
-
-    public String getProperty(String property){
-        InputStream input = null;
-
-        String property_value;
-
-        try{
-            input = ConfigLoaderClasspath.class.getClassLoader().getResourceAsStream(properties_file);
-            if(input==null){
-                logger.error("Sorry, unable to find: " + properties_file);
+        try (InputStream input = ConfigLoaderClasspath.class.getClassLoader().getResourceAsStream(propertiesFile)) {
+            if (input == null) {
+                logger.error("Unable to find config file on classpath: {}", propertiesFile);
                 return null;
             }
-
-            //load a properties file from class path, inside static method
             prop.load(input);
-            property_value = prop.get(property).toString();
-            return property_value;
-
-
+            String value = prop.getProperty(property);
+            if (value == null) {
+                logger.error("Property not found: {}", property);
+                return null;
+            }
+            return Arrays.asList(value.split("\\s*" + delimiter + "\\s*"));
         } catch (IOException ex) {
-
-            ex.printStackTrace();
+            logger.error("Error reading property '{}' from config file: {}", property, propertiesFile, ex);
             return null;
-
         }
-
-
-
     }
 
-
+    public String getProperty(String property) {
+        try (InputStream input = ConfigLoaderClasspath.class.getClassLoader().getResourceAsStream(propertiesFile)) {
+            if (input == null) {
+                logger.error("Unable to find config file on classpath: {}", propertiesFile);
+                return null;
+            }
+            prop.load(input);
+            return prop.getProperty(property);
+        } catch (IOException ex) {
+            logger.error("Error reading property '{}' from config file: {}", property, propertiesFile, ex);
+            return null;
+        }
+    }
 }

@@ -4,8 +4,8 @@ import com.subhadipmitra.code.module.config.loader.ConfigLoaderExternal;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -13,10 +13,13 @@ import java.util.List;
  */
 public class ConfigurationsSourceSMPP {
     /** Logger Instance */
-    private static Logger logger = LoggerFactory.getLogger(ConfigurationsSourceSMPP.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConfigurationsSourceSMPP.class);
 
-    /** Pseudo JVM start time */
-    public static final String SMPP_SERVICE_JVM_START_TIME = (new SimpleDateFormat("MM-dd-yyyy hh:mm:ss")).format(new Date());
+    /** Date formatter (thread-safe) */
+    private static final DateTimeFormatter JVM_START_TIME_FORMATTER = DateTimeFormatter.ofPattern("MM-dd-yyyy hh:mm:ss");
+
+    /** Pseudo JVM start time (thread-safe) */
+    public static final String SMPP_SERVICE_JVM_START_TIME = LocalDateTime.now().format(JVM_START_TIME_FORMATTER);
 
     /** Events Service Specifics */
     public static int SMPP_SERVICE_EVENTS_QUEUE_SIZE;

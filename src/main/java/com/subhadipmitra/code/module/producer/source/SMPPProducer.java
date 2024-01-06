@@ -94,9 +94,8 @@ public class SMPPProducer {
           // send
           producer.send(new ProducerRecord<>(topic, id, triggerJSON), (metadata, e) -> {
               if (e != null) {
-                  logger.error(e.toString());
-                  e.printStackTrace();
-
+                  logger.error("Failed to send message to Kafka topic {}: {}", topic, e.getMessage(), e);
+                  return;
               }
 
               // Update the total number of records processed
@@ -119,7 +118,7 @@ public class SMPPProducer {
 
 
       } catch (JsonProcessingException e) {
-          e.printStackTrace();
+          logger.error("Failed to serialize SMS to JSON: {}", sms, e);
       }
 
 

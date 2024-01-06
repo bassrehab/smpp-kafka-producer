@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-java -Xms32m -Xmx1024m \
+
+# SMPP Kafka Producer - Startup Script
+# Usage: ./run.sh -p <port> [additional_ports...]
+
+java -Xms64m -Xmx2048m \
     -Dconfig.properties=settings/config.properties \
     -Dconfig.smpp=settings/context.xml \
-    -Dlog4j.configuration=file:settings/log4j.properties \
-    -jar module-smpp-0.2.0-spring-boot.jar -p 23940
-
+    -Dlog4j2.configurationFile=file:settings/log4j2.xml \
+    -jar smpp-kafka-producer-2.0.1-spring-boot.jar "$@"

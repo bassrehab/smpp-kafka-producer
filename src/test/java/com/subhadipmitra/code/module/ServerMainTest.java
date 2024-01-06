@@ -15,20 +15,20 @@ import com.cloudhopper.smpp.type.SmppChannelException;
 import com.cloudhopper.smpp.type.SmppInvalidArgumentException;
 import com.subhadipmitra.code.module.server.SmscServer;
 import com.subhadipmitra.code.module.controller.auto.SmscGlobalConfiguration;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.concurrent.Semaphore;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration("/context.xml")
 public class ServerMainTest {
 
@@ -48,7 +48,7 @@ public class ServerMainTest {
 
 
 
-    @Before
+    @BeforeEach
     public void before() throws SmppChannelException {
         SmscGlobalConfiguration smscConfiguration = context.getBean(SmscGlobalConfiguration.class);
         SmppServerConfiguration serverConfig = context.getBean(SmppServerConfiguration.class); // new configuration instance every time
@@ -58,7 +58,7 @@ public class ServerMainTest {
         smscServer.start();
     }
 
-    @After
+    @AfterEach
     public void after() {
         try {
             smscServer.stop();

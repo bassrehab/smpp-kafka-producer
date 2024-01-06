@@ -63,28 +63,28 @@ public class CompletionServiceProvider {
 	    alternateExecutor.shutdown();
 
         try {
-            if (!exec.awaitTermination(60000, TimeUnit.SECONDS))
+            if (!exec.awaitTermination(60, TimeUnit.SECONDS)) {
                 logger.error("Exec Threads didn't finish in 60 seconds!");
+            }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Interrupted while waiting for executor shutdown", e);
+            Thread.currentThread().interrupt();
         }
 
-
         try {
-            if (!alternateExecutor.awaitTermination(60000, TimeUnit.SECONDS))
+            if (!alternateExecutor.awaitTermination(60, TimeUnit.SECONDS)) {
                 logger.error("Alternate Exec Threads didn't finish in 60 seconds!");
+            }
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.error("Interrupted while waiting for alternate executor shutdown", e);
+            Thread.currentThread().interrupt();
         }
 
 		logger.info("Reclaimed Executor resources.");
 
-
 		monitor.shutdown();
 
 		logger.info("Shutdown Executor monitoring.");
-
-
 	}
 
 

@@ -69,9 +69,11 @@ public class MonitorThreads implements Runnable {
                             this.rejectionHandler.failedRetries
                             ));
             try {
-                Thread.sleep(seconds*1000);
+                Thread.sleep(seconds * 1000L);
             } catch (InterruptedException e) {
-                e.printStackTrace();
+                logger.warn("Monitor thread interrupted", e);
+                Thread.currentThread().interrupt();
+                break;
             }
         }
 

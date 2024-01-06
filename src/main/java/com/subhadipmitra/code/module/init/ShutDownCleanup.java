@@ -2,8 +2,6 @@ package com.subhadipmitra.code.module.init;
 
 import com.subhadipmitra.code.module.events.service.completionservice.CompletionServiceProvider;
 import com.subhadipmitra.code.module.producer.source.SMPPProducer;
-import org.apache.log4j.Level;
-import org.apache.log4j.LogManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,21 +10,21 @@ import org.slf4j.LoggerFactory;
  */
 public class ShutDownCleanup extends Thread {
     /** Instantiate Logger */
-    private static final Logger logger = LoggerFactory.getLogger(ServerMain.class);
+    private static final Logger logger = LoggerFactory.getLogger(ShutDownCleanup.class);
 
     /** SMPP Server Setup Instance */
-    private static ServerMain server;
+    private final ServerMain server;
 
     /** SMPP Kafka Producer Setup Instance */
-    private static SMPPProducer smppProducer;
+    private final SMPPProducer smppProducer;
 
-    ShutDownCleanup(ServerMain server, SMPPProducer smppProducer){
-        ShutDownCleanup.server = server;
-        ShutDownCleanup.smppProducer = smppProducer;
+    ShutDownCleanup(ServerMain server, SMPPProducer smppProducer) {
+        this.server = server;
+        this.smppProducer = smppProducer;
     }
-    @Override
-    public void run(){
 
+    @Override
+    public void run() {
         logger.info("Received shutdown signal..");
 
         try {
@@ -34,7 +32,7 @@ public class ShutDownCleanup extends Thread {
             server.printMetrics();
             server.destroy();
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error during server shutdown", e);
         }
 
         CompletionServiceProvider.shutdown();
@@ -42,6 +40,5 @@ public class ShutDownCleanup extends Thread {
         smppProducer.shutdown();
 
         logger.info("Finished pre-shutdown tasks");
-
     }
 }

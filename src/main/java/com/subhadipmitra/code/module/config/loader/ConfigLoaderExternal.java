@@ -16,87 +16,42 @@ import java.util.Properties;
  */
 public class ConfigLoaderExternal {
     /** Logger Instance */
-    private static Logger logger = LoggerFactory.getLogger("ConfigLoaderExternal");
-    private String properties_file;
-    private Properties prop;
+    private static final Logger logger = LoggerFactory.getLogger(ConfigLoaderExternal.class);
+    private final String propertiesFile;
+    private final Properties prop;
 
-    public ConfigLoaderExternal(String conf_file){
-
-        this.properties_file = conf_file;
+    public ConfigLoaderExternal(String confFile) {
+        this.propertiesFile = confFile;
         this.prop = new Properties();
-
-        logger.info("Using config file:" + conf_file);
-
+        logger.info("Using config file: {}", confFile);
     }
 
     public List<String> getProperty(String property, String delimiter) {
-
-        List<String> property_list = null;
-        InputStream input = null;
-
-
-        try {
-
-            input = new FileInputStream(properties_file);
-            if(input==null){
-                logger.error("Sorry, unable to find config file: " + properties_file);
-                return property_list;
-            }
+        try (InputStream input = new FileInputStream(propertiesFile)) {
             prop.load(input);
-
-            property_list = Arrays.asList(prop.get(property).toString().split("\\s*"+ delimiter +"\\s*"));
-
-
-
-        } catch (IOException ex) {
-            ex.printStackTrace();
-
-
-        } finally{
-            if(input!=null){
-                try {
-                    input.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-
-        }
-
-        return property_list;
-
-    }
-
-
-    public String getProperty(String property){
-        InputStream input = null;
-
-        String property_value;
-
-        try{
-            input = new FileInputStream(properties_file);
-            if(input==null){
-                logger.error("Sorry, unable to find: " + properties_file);
+            String value = prop.getProperty(property);
+            if (value == null) {
+                logger.error("Property not found: {}", property);
                 return null;
             }
-
-            //load a properties file from class path, inside static method
-            prop.load(input);
-            property_value = prop.get(property).toString();
-            return property_value;
-
-
+            return Arrays.asList(value.split("\\s*" + delimiter + "\\s*"));
         } catch (IOException ex) {
-
-            ex.printStackTrace();
+            logger.error("Error reading property '{}' from config file: {}", property, propertiesFile, ex);
             return null;
-
         }
-
-
-
     }
 
-
+    public String getProperty(String property) {
+        try (InputStream input = new FileInputStream(propertiesFile)) {
+            prop.load(input);
+            String value = prop.getProperty(property);
+            if (value == null) {
+                logger.error("Property not found: {}", property);
+            }
+            return value;
+        } catch (IOException ex) {
+            logger.error("Error reading property '{}' from config file: {}", property, propertiesFile, ex);
+            return null;
+        }
+    }
 }

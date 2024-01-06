@@ -1,5 +1,8 @@
 package com.subhadipmitra.code.module.common.utilities;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -15,24 +18,15 @@ import java.util.regex.Pattern;
  *
  */
 public class Utilities {
+    private static final Logger logger = LoggerFactory.getLogger(Utilities.class);
 
-    public boolean isFileCompletelyWritten(String file_abs_path) {
-        File file = new File(file_abs_path);
+    public boolean isFileCompletelyWritten(String fileAbsPath) {
+        File file = new File(fileAbsPath);
 
-        RandomAccessFile stream = null;
-        try {
-            stream = new RandomAccessFile(file, "rw");
+        try (RandomAccessFile stream = new RandomAccessFile(file, "rw")) {
             return true;
         } catch (Exception e) {
-            System.out.println("Skipping file " + file.getName() + " for this iteration due it's not completely written");
-        } finally {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException e) {
-                    System.out.println("Exception during closing file " + file.getName());
-                }
-            }
+            logger.debug("Skipping file {} - not completely written yet", file.getName());
         }
         return false;
     }
@@ -55,16 +49,13 @@ public class Utilities {
 
     public List<String> splitCSVRecord(String str){
         try {
-            List<String> result = Arrays.asList(str.split(",", -1));
-            // -1 to deal with trailing null values in CSV, exception.
-            return result;
+            // -1 to deal with trailing null values in CSV
+            return Arrays.asList(str.split(",", -1));
         }
         catch (IndexOutOfBoundsException obe){
-                obe.printStackTrace();
-                return null;
+            logger.error("Error splitting CSV record: {}", str, obe);
+            return null;
         }
-
-
     }
 
     public List<String> splitRecord(String str, String DELIMITER){
