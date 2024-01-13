@@ -1,14 +1,15 @@
 package com.subhadipmitra.code.module.producer.source;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.subhadipmitra.code.module.metrics.MetricsRegistry;
 import com.subhadipmitra.code.module.producer.telemetry.TelemetryProducer;
 import com.subhadipmitra.code.module.common.utilities.PeriodicUUID;
 import com.subhadipmitra.code.module.common.utilities.UniqueId;
 import com.subhadipmitra.code.module.models.SMS;
 import com.subhadipmitra.code.module.models.SRC_MapSMPP;
+import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 import java.util.Properties;
 import org.apache.kafka.clients.producer.*;
@@ -19,7 +20,8 @@ import static com.subhadipmitra.code.module.init.Main.utilities;
 
 public class SMPPProducer {
   private static final Logger logger = LoggerFactory.getLogger(SMPPProducer.class);
-  public  Producer<String, String> producer;
+  private final MetricsRegistry metrics = MetricsRegistry.getInstance();
+  public Producer<String, String> producer;
   private static long recordsProcessed;
 
 
@@ -90,15 +92,22 @@ public class SMPPProducer {
       try {
           String triggerJSON = mapper.writeValueAsString(trigger);
 
+          // Start timing Kafka send
+          Timer.Sample kafkaTimer = metrics.startKafkaTimer();
 
           // send
           producer.send(new ProducerRecord<>(topic, id, triggerJSON), (metadata, e) -> {
+              // Record Kafka send timing
+              metrics.recordKafkaSendTime(kafkaTimer);
+
               if (e != null) {
                   logger.error("Failed to send message to Kafka topic {}: {}", topic, e.getMessage(), e);
+                  metrics.incrementKafkaFailed();
                   return;
               }
 
-              // Update the total number of records processed
+              // Update metrics
+              metrics.incrementKafkaSent();
               recordsProcessed++;
 
               logger.debug("L0_SMPPJSONRecord ["
@@ -119,6 +128,7 @@ public class SMPPProducer {
 
       } catch (JsonProcessingException e) {
           logger.error("Failed to serialize SMS to JSON: {}", sms, e);
+          metrics.incrementKafkaFailed();
       }
 
 

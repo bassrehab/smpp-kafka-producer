@@ -1,10 +1,12 @@
 package com.subhadipmitra.code.module.events.service.consumer;
 
-
+import com.subhadipmitra.code.module.metrics.MetricsRegistry;
 import com.subhadipmitra.code.module.models.SMS;
 import com.subhadipmitra.code.module.events.service.eventrecord.EventRecord;
+import io.micrometer.core.instrument.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -14,26 +16,16 @@ import static com.subhadipmitra.code.module.init.Main.*;
 
 
 public class EventsConsumer implements Runnable {
-	/** Logger Instance */
-	private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+	private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+	private final MetricsRegistry metrics = MetricsRegistry.getInstance();
 
-
-	/** Consumer Name */
 	private String consumerName;
-
-	/** Completion Service */
 	private CompletionService service;
-
-
-    /** Run Latch */
-    private boolean run = true;
-
-	/** Constructor */
+	private volatile boolean run = true;
 
 	public EventsConsumer(String consumerName, CompletionService service) {
 		this.consumerName = consumerName;
 		this.service = service;
-
 	}
 
 
@@ -56,36 +48,43 @@ public class EventsConsumer implements Runnable {
 
 	@Override
 	public void run() {
-        while(run){
-            logger.debug("Consumer waiting for Event Record: "+ this.consumerName + " at "+ new Date());
+        while (run) {
+            logger.debug("Consumer waiting for Event Record: {} at {}", this.consumerName, new Date());
             try {
-
-
-
                 Future<EventRecord> fp = service.take();
 
+                // Update metrics - message received from queue
+                metrics.incrementSmppReceived();
+                metrics.decrementQueueSize();
                 METRICS_SMPP_CONSUMER_EVENTS_RECEIVED.incrementAndGet();
-				EventRecord evt = fp.get();
-				evt.setQueueEndTime(); // Stop Queue timer
 
+                // Start processing timer
+                Timer.Sample processingTimer = metrics.startSmppTimer();
 
+                EventRecord evt = fp.get();
+                evt.setQueueEndTime(); // Stop Queue timer
 
-				// Send to Kafka
-				SMS sms = new SMS(evt);
+                // Record queue wait time in metrics
+                metrics.recordQueueWaitTime(evt.getQueueWaitTime());
 
-				smppProducer.sendMessage(sms);
+                // Send to Kafka
+                SMS sms = new SMS(evt);
+                smppProducer.sendMessage(sms);
 
-
+                // Record processing time and update counters
+                metrics.recordSmppProcessingTime(processingTimer);
+                metrics.incrementSmppProcessed();
                 METRICS_SMPP_CONSUMER_EVENTS_PROCESSED.incrementAndGet();
 
-                logger.debug("SMPP Queue[evtSent="+ METRICS_SMPP_PRODUCER_EVENTS_SENT.get()
-                        +", evtReceived=" + METRICS_SMPP_CONSUMER_EVENTS_RECEIVED.get()
-                        + ", evtProcessed="+ METRICS_SMPP_CONSUMER_EVENTS_PROCESSED.get()
-                        +", queueWaitTime=" + evt.getQueueWaitTime() / 1000000 + " ms ]");
-
+                logger.debug("SMPP Queue[evtSent={}, evtReceived={}, evtProcessed={}, queueWaitTime={} ms]",
+                        METRICS_SMPP_PRODUCER_EVENTS_SENT.get(),
+                        METRICS_SMPP_CONSUMER_EVENTS_RECEIVED.get(),
+                        METRICS_SMPP_CONSUMER_EVENTS_PROCESSED.get(),
+                        evt.getQueueWaitTime() / 1_000_000);
 
 			} catch (InterruptedException | ExecutionException e) {
-                logger.error("Error processing event in consumer: " + consumerName, e);
+                logger.error("Error processing event in consumer: {}", consumerName, e);
+                metrics.incrementSmppFailed();
             }
         }
 	}

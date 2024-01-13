@@ -2,6 +2,8 @@ package com.subhadipmitra.code.module.init;
 
 import com.subhadipmitra.code.module.events.service.completionservice.CompletionServiceProvider;
 import com.subhadipmitra.code.module.events.service.consumer.EventsConsumer;
+import com.subhadipmitra.code.module.metrics.MetricsRegistry;
+import com.subhadipmitra.code.module.metrics.MetricsServer;
 import com.subhadipmitra.code.module.producer.source.SMPPProducer;
 import com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP;
 import org.springframework.core.env.Environment;
@@ -13,10 +15,13 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericApplicationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.atomic.AtomicLong;
+
 import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.SMPP_SERVICE_EVENTS_NAME;
 import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.SMPP_SERVICE_EVENTS_NUM_CONSUMERS;
+import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.METRICS_SERVER_PORT;
 import static com.subhadipmitra.code.module.init.ServerMain.parseParameters;
 
 
@@ -66,42 +71,43 @@ public class Main {
     /** Create SMPP Producer **/
     public static SMPPProducer smppProducer;
 
+    /** Metrics Server **/
+    public static MetricsServer metricsServer;
 
     /** Main entry point to application */
     public static void main(String[] args) {
-
         new Main().start(args);
-
     }
 
     /** Load Configs, Start Producer, and Start Webserver */
-    private void start(String[] args){
-
+    private void start(String[] args) {
 
         ApplicationContext ctx = new GenericApplicationContext();
         Environment env = ctx.getEnvironment();
-
-
 
         // Create Config Object.
         cfg = new ConfigLoaderExternal(env.getProperty("config.properties"));
         cfg_smpp = env.getProperty("config.smpp"); //context.xml location
 
-
-        // Create the GLobal Config Instances
+        // Create the Global Config Instances
         new ConfigurationsSourceSMPP(cfg);
+
+        // Initialize Metrics Registry (singleton)
+        MetricsRegistry.getInstance();
+        logger.info("Metrics registry initialized");
+
+        // Start Metrics Server
+        metricsServer = new MetricsServer(METRICS_SERVER_PORT);
+        metricsServer.start();
 
         // Instantiate Completion Service.
         new CompletionServiceProvider();
         compSMPPService = CompletionServiceProvider.getCompletionservice(SMPP_SERVICE_EVENTS_NAME);
 
-
-
         /* Parse the Parameters */
         if (!parseParameters(args)) {
             System.exit(0);
         }
-
 
         // Start the Server Setup.
         try {
@@ -110,19 +116,16 @@ public class Main {
             logger.error("Got Error while starting SMPP Servers", e);
         }
 
-
         // Create the SMPP Producer
         smppProducer = new SMPPProducer();
 
         /* Start Consumer Service */
-        for (int i = 0; i < SMPP_SERVICE_EVENTS_NUM_CONSUMERS ; i++) {
+        for (int i = 0; i < SMPP_SERVICE_EVENTS_NUM_CONSUMERS; i++) {
             new Thread(new EventsConsumer(SMPP_SERVICE_EVENTS_NAME + "_" + i, compSMPPService)).start();
         }
 
-
         /* Register Shutdown Hook */
-        Runtime.getRuntime().addShutdownHook(new ShutDownCleanup(server, smppProducer));
-
+        Runtime.getRuntime().addShutdownHook(new ShutDownCleanup(server, smppProducer, metricsServer));
     }
 
 

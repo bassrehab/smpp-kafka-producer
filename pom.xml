@@ -18,6 +18,8 @@
         <kafka.version>3.9.0</kafka.version>
         <jackson.version>2.18.2</jackson.version>
         <junit.version>5.11.4</junit.version>
+        <micrometer.version>1.14.2</micrometer.version>
+        <undertow.version>2.3.18.Final</undertow.version>
         <single.jar.descriptor>spring-boot</single.jar.descriptor>
         <jar.file>target/${project.artifactId}-${project.version}.jar</jar.file>
         <uber.jar.file>target/${project.artifactId}-${project.version}-${single.jar.descriptor}.jar</uber.jar.file>
@@ -129,6 +131,26 @@
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>${slf4j.version}</version>
+        </dependency>
+
+        <!-- Micrometer Metrics -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+            <version>${micrometer.version}</version>
+        </dependency>
+        <!-- Prometheus registry for metrics export -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+            <version>${micrometer.version}</version>
+        </dependency>
+
+        <!-- Undertow for lightweight HTTP server (metrics endpoint) -->
+        <dependency>
+            <groupId>io.undertow</groupId>
+            <artifactId>undertow-core</artifactId>
+            <version>${undertow.version}</version>
         </dependency>
     </dependencies>
 

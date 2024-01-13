@@ -74,6 +74,9 @@ public class ConfigurationsSourceSMPP {
     public static int SMPP_SERVER_BASE_SENDER_SEND_TIMEOUT_MS;
     public static String SMPP_SERVER_SESSION_PASSWORD;
 
+    /** Metrics Configuration */
+    public static int METRICS_SERVER_PORT;
+
 
     public ConfigurationsSourceSMPP(ConfigLoaderExternal cfg) {
 
@@ -130,8 +133,9 @@ public class ConfigurationsSourceSMPP {
         TELEMETRY_KAFKA_PRODUCER_SECURITY_PROTOCOL = cfg.getProperty("telemetry.kafka.security.protocol");
         TELEMETRY_KAFKA_PRODUCER_KERBEROS_SERVICE_NAME = cfg.getProperty("telemetry.kafka.sasl.kerberos.service.name");
 
-
-
+        /* Metrics Configuration */
+        String metricsPort = cfg.getProperty("metrics.server.port");
+        METRICS_SERVER_PORT = (metricsPort != null) ? Integer.parseInt(metricsPort) : 9090;
     }
 
 }
