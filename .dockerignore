@@ -1,0 +1,41 @@
+# Build artifacts
+target/
+out/
+*.jar
+!settings/
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+*.code-workspace
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+!README.md
+
+# Docker files (prevent recursive builds)
+Dockerfile*
+docker-compose*.yml
+.dockerignore
+
+# Kubernetes
+k8s/
+
+# Test files (not needed in runtime image)
+src/test/
+
+# Benchmarks
+benchmark-results.json
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
