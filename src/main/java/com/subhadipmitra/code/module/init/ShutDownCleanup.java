@@ -1,6 +1,7 @@
 package com.subhadipmitra.code.module.init;
 
 import com.subhadipmitra.code.module.events.service.completionservice.CompletionServiceProvider;
+import com.subhadipmitra.code.module.http.api.HttpApiServer;
 import com.subhadipmitra.code.module.metrics.MetricsServer;
 import com.subhadipmitra.code.module.producer.source.SMPPProducer;
 import org.slf4j.Logger;
@@ -15,11 +16,13 @@ public class ShutDownCleanup extends Thread {
     private final ServerMain server;
     private final SMPPProducer smppProducer;
     private final MetricsServer metricsServer;
+    private final HttpApiServer httpApiServer;
 
-    ShutDownCleanup(ServerMain server, SMPPProducer smppProducer, MetricsServer metricsServer) {
+    ShutDownCleanup(ServerMain server, SMPPProducer smppProducer, MetricsServer metricsServer, HttpApiServer httpApiServer) {
         this.server = server;
         this.smppProducer = smppProducer;
         this.metricsServer = metricsServer;
+        this.httpApiServer = httpApiServer;
     }
 
     @Override
@@ -44,6 +47,11 @@ public class ShutDownCleanup extends Thread {
         // Stop metrics server
         if (metricsServer != null) {
             metricsServer.stop();
+        }
+
+        // Stop HTTP API server
+        if (httpApiServer != null) {
+            httpApiServer.stop();
         }
 
         logger.info("Finished pre-shutdown tasks");

@@ -77,6 +77,10 @@ public class ConfigurationsSourceSMPP {
     /** Metrics Configuration */
     public static int METRICS_SERVER_PORT;
 
+    /** HTTP API Configuration */
+    public static int HTTP_API_PORT;
+    public static boolean HTTP_API_ENABLED;
+
 
     public ConfigurationsSourceSMPP(ConfigLoaderExternal cfg) {
 
@@ -136,6 +140,12 @@ public class ConfigurationsSourceSMPP {
         /* Metrics Configuration */
         String metricsPort = cfg.getProperty("metrics.server.port");
         METRICS_SERVER_PORT = (metricsPort != null) ? Integer.parseInt(metricsPort) : 9090;
+
+        /* HTTP API Configuration */
+        String httpApiPort = cfg.getProperty("http.api.port");
+        HTTP_API_PORT = (httpApiPort != null) ? Integer.parseInt(httpApiPort) : 8080;
+        String httpApiEnabled = cfg.getProperty("http.api.enabled");
+        HTTP_API_ENABLED = httpApiEnabled == null || Boolean.parseBoolean(httpApiEnabled);
     }
 
 }

@@ -2,6 +2,7 @@ package com.subhadipmitra.code.module.init;
 
 import com.subhadipmitra.code.module.events.service.completionservice.CompletionServiceProvider;
 import com.subhadipmitra.code.module.events.service.consumer.EventsConsumer;
+import com.subhadipmitra.code.module.http.api.HttpApiServer;
 import com.subhadipmitra.code.module.metrics.MetricsRegistry;
 import com.subhadipmitra.code.module.metrics.MetricsServer;
 import com.subhadipmitra.code.module.producer.source.SMPPProducer;
@@ -22,6 +23,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.SMPP_SERVICE_EVENTS_NAME;
 import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.SMPP_SERVICE_EVENTS_NUM_CONSUMERS;
 import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.METRICS_SERVER_PORT;
+import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.HTTP_API_PORT;
+import static com.subhadipmitra.code.module.config.initialize.ConfigurationsSourceSMPP.HTTP_API_ENABLED;
 import static com.subhadipmitra.code.module.init.ServerMain.parseParameters;
 
 
@@ -74,6 +77,9 @@ public class Main {
     /** Metrics Server **/
     public static MetricsServer metricsServer;
 
+    /** HTTP API Server (5G-ready) **/
+    public static HttpApiServer httpApiServer;
+
     /** Main entry point to application */
     public static void main(String[] args) {
         new Main().start(args);
@@ -119,13 +125,20 @@ public class Main {
         // Create the SMPP Producer
         smppProducer = new SMPPProducer();
 
+        // Start HTTP/2 API Server (5G-ready interface)
+        if (HTTP_API_ENABLED) {
+            httpApiServer = new HttpApiServer(HTTP_API_PORT, smppProducer);
+            httpApiServer.start();
+            logger.info("HTTP/2 API server started on port {} (5G SMSF compatible)", HTTP_API_PORT);
+        }
+
         /* Start Consumer Service */
         for (int i = 0; i < SMPP_SERVICE_EVENTS_NUM_CONSUMERS; i++) {
             new Thread(new EventsConsumer(SMPP_SERVICE_EVENTS_NAME + "_" + i, compSMPPService)).start();
         }
 
         /* Register Shutdown Hook */
-        Runtime.getRuntime().addShutdownHook(new ShutDownCleanup(server, smppProducer, metricsServer));
+        Runtime.getRuntime().addShutdownHook(new ShutDownCleanup(server, smppProducer, metricsServer, httpApiServer));
     }
 
 

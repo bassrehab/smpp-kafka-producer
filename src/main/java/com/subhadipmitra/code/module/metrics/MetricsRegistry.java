@@ -45,6 +45,11 @@ public final class MetricsRegistry {
     // Session Metrics
     private final AtomicLong activeSessions = new AtomicLong(0);
 
+    // HTTP API Metrics
+    private final Counter httpMessagesReceived;
+    private final Counter httpMessagesFailed;
+    private final Timer httpProcessingTime;
+
     private MetricsRegistry() {
         this.registry = new PrometheusMeterRegistry(PrometheusConfig.DEFAULT);
 
@@ -98,6 +103,19 @@ public final class MetricsRegistry {
         // Session Metrics
         Gauge.builder("smpp_active_sessions", activeSessions, AtomicLong::get)
                 .description("Number of active SMPP sessions")
+                .register(registry);
+
+        // HTTP API Metrics
+        httpMessagesReceived = Counter.builder("http_messages_received_total")
+                .description("Total messages received via HTTP API")
+                .register(registry);
+
+        httpMessagesFailed = Counter.builder("http_messages_failed_total")
+                .description("Total HTTP API requests that failed")
+                .register(registry);
+
+        httpProcessingTime = Timer.builder("http_processing_duration_seconds")
+                .description("Time spent processing HTTP API requests")
                 .register(registry);
 
         logger.info("Metrics registry initialized with Prometheus support");
@@ -188,5 +206,22 @@ public final class MetricsRegistry {
 
     public long getActiveSessions() {
         return activeSessions.get();
+    }
+
+    // HTTP API metric methods
+    public void incrementHttpReceived() {
+        httpMessagesReceived.increment();
+    }
+
+    public void incrementHttpFailed() {
+        httpMessagesFailed.increment();
+    }
+
+    public Timer.Sample startHttpTimer() {
+        return Timer.start(registry);
+    }
+
+    public void recordHttpProcessingTime(Timer.Sample sample) {
+        sample.stop(httpProcessingTime);
     }
 }
