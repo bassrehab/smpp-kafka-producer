@@ -7,7 +7,7 @@
 
 	<context:annotation-config />
 	<context:mbean-server />
-	<context:component-scan base-package="com.subhadipmitra.code.module.controller.auto" />
+	<context:component-scan base-package="io.smppgateway.controller.auto" />
 	<context:mbean-export server="mbeanServer" />
 
 	<bean id="config" class="com.cloudhopper.smpp.SmppServerConfiguration" scope="prototype">
@@ -24,13 +24,13 @@
 		<property name="systemId" value="demosmpp"/>
         <property name="name" value="Demo-SMPP-Server"/>
 	</bean>
-	<bean id="messageIdGenerator" class="com.subhadipmitra.code.module.controller.auto.ResponseMessageIdGeneratorImpl">
+	<bean id="messageIdGenerator" class="io.smppgateway.controller.auto.ResponseMessageIdGeneratorImpl">
 		<property name="initialMessageIdValue" value="1" />
 	</bean>
 	
-	<bean id="rateSender" class="com.subhadipmitra.code.module.controller.core.SmscRateSender">
+	<bean id="rateSender" class="io.smppgateway.controller.core.SmscRateSender">
 		<property name="messageFactory">
-			<bean class="com.subhadipmitra.code.module.controller.message.DeliverSegmentedMessageFactory">
+			<bean class="io.smppgateway.controller.message.DeliverSegmentedMessageFactory">
 				<property name="numberOfSegments" value="2"></property>
 				<property name="destAddressDigits" value="1111"></property>
 			</bean>

@@ -1,0 +1,381 @@
+openapi: 3.1.0
+info:
+  title: SMPP Gateway API
+  description: |
+    HTTP/2 REST API for SMS submission. Provides 5G-compatible interface
+    as an alternative to SMPP protocol. Compatible with 3GPP TS 29.540 SMSF.
+  version: 2.1.0
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0
+  contact:
+    name: SMPP Gateway
+    url: https://github.com/bassrehab/smpp-kafka-producer
+
+servers:
+  - url: http://localhost:8080
+    description: Local development server
+  - url: http://smpp-producer:8080
+    description: Docker/Kubernetes internal
+
+tags:
+  - name: SMS
+    description: SMS submission endpoints
+  - name: Health
+    description: Health check endpoints
+  - name: Metrics
+    description: Observability endpoints
+
+paths:
+  /api/v1/sms:
+    post:
+      tags:
+        - SMS
+      summary: Submit single SMS
+      description: Submit a single SMS message for delivery via Kafka
+      operationId: submitSms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SmsRequest'
+            examples:
+              simple:
+                summary: Simple SMS
+                value:
+                  destination: "+1234567890"
+                  message: "KEYWORD,VALUE,EXTRA"
+              structured:
+                summary: Structured SMS
+                value:
+                  destination: "+1234567890"
+                  keyword: "VOTE"
+                  value: "A"
+                  extraData: "campaign123"
+      responses:
+        '202':
+          description: SMS accepted for delivery
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SmsResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/sms/batch:
+    post:
+      tags:
+        - SMS
+      summary: Submit batch SMS
+      description: Submit multiple SMS messages in a single request
+      operationId: submitSmsBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/SmsRequest'
+              maxItems: 1000
+            examples:
+              batch:
+                summary: Batch of 3 messages
+                value:
+                  - destination: "+1234567890"
+                    message: "VOTE,A"
+                  - destination: "+0987654321"
+                    message: "VOTE,B"
+                  - destination: "+1122334455"
+                    message: "VOTE,C"
+      responses:
+        '200':
+          description: Batch processed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1/sms/status:
+    get:
+      tags:
+        - SMS
+      summary: Query message status
+      description: Get the delivery status of a submitted message
+      operationId: getSmsStatus
+      parameters:
+        - name: messageId
+          in: query
+          required: true
+          description: Message ID returned from submission
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Message status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusResponse'
+        '400':
+          description: Missing messageId parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '404':
+          description: Message not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/v1:
+    get:
+      tags:
+        - Health
+      summary: API information
+      description: Get API version and available endpoints
+      operationId: getApiInfo
+      responses:
+        '200':
+          description: API information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApiInfo'
+
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Full health check
+      description: Returns detailed health status of all components
+      operationId: getHealth
+      responses:
+        '200':
+          description: All components healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+        '503':
+          description: One or more components unhealthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /health/live:
+    get:
+      tags:
+        - Health
+      summary: Liveness probe
+      description: Kubernetes liveness probe endpoint
+      operationId: getLiveness
+      responses:
+        '200':
+          description: Application is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleHealth'
+
+  /health/ready:
+    get:
+      tags:
+        - Health
+      summary: Readiness probe
+      description: Kubernetes readiness probe endpoint
+      operationId: getReadiness
+      responses:
+        '200':
+          description: Application is ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleHealth'
+        '503':
+          description: Application not ready
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimpleHealth'
+
+  /metrics:
+    get:
+      tags:
+        - Metrics
+      summary: Prometheus metrics
+      description: Prometheus-compatible metrics endpoint
+      operationId: getMetrics
+      responses:
+        '200':
+          description: Prometheus metrics
+          content:
+            text/plain:
+              schema:
+                type: string
+
+components:
+  schemas:
+    SmsRequest:
+      type: object
+      required:
+        - destination
+      properties:
+        destination:
+          type: string
+          description: Destination phone number (E.164 format)
+          example: "+1234567890"
+        source:
+          type: string
+          description: Source/sender ID
+          example: "MYAPP"
+        message:
+          type: string
+          description: SMS content in CSV format (keyword,value,extra)
+          example: "VOTE,A,campaign123"
+        keyword:
+          type: string
+          description: Message keyword
+          example: "VOTE"
+        value:
+          type: string
+          description: Message value
+          example: "A"
+        extraData:
+          type: string
+          description: Additional payload data
+          example: "campaign123"
+        priority:
+          type: integer
+          description: Message priority (0-3)
+          default: 0
+          minimum: 0
+          maximum: 3
+        requestDeliveryReceipt:
+          type: boolean
+          description: Request delivery confirmation
+          default: false
+
+    SmsResponse:
+      type: object
+      properties:
+        messageId:
+          type: string
+          format: uuid
+          description: Unique message identifier
+        status:
+          type: string
+          enum: [ACCEPTED, ERROR]
+          description: Submission status
+        statusCode:
+          type: integer
+          description: HTTP status code
+        message:
+          type: string
+          description: Status message
+        timestamp:
+          type: string
+          description: Submission timestamp
+
+    BatchResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [COMPLETED]
+        total:
+          type: integer
+          description: Total messages in batch
+        success:
+          type: integer
+          description: Successfully processed count
+        failed:
+          type: integer
+          description: Failed message count
+
+    StatusResponse:
+      type: object
+      properties:
+        messageId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          enum: [SUBMITTED, DELIVERED, FAILED, UNKNOWN]
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [ERROR]
+        statusCode:
+          type: integer
+        message:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN]
+        components:
+          type: object
+          properties:
+            smpp:
+              $ref: '#/components/schemas/SimpleHealth'
+            kafka:
+              $ref: '#/components/schemas/SimpleHealth'
+            http:
+              $ref: '#/components/schemas/SimpleHealth'
+
+    SimpleHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [UP, DOWN]
+        reason:
+          type: string
+
+    ApiInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        version:
+          type: string
+        protocol:
+          type: string
+        endpoints:
+          type: object
+          additionalProperties:
+            type: string
+        5g_compatible:
+          type: boolean
+        smsf_interface:
+          type: string

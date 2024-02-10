@@ -1,72 +1,251 @@
-SMPP Kafka Producer
-===================
+# SMPP Kafka Producer
 
-This is a Kafka Producer that reads SMPP protocol messages, and publishes to Kafka topics.
+[![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.org/)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
+[![Build](https://img.shields.io/badge/Build-Maven-orange.svg)](pom.xml)
 
-The SMPP (Short Message Peer-to-Peer) protocol is an open, 
-industry standard protocol designed to provide a flexible data 
-communications interface for the transfer of short message data 
-between External Short Message Entities (ESME), Routing Entities (RE) 
-and Message Centres (MC). It is a means by which applications can send 
-SMS messages to mobile devices and receive SMS from mobile devices. 
+A high-performance, production-ready SMPP-to-Kafka bridge that receives SMS messages via SMPP protocol and publishes them to Apache Kafka topics. Features include HTTP/2 REST API for 5G network compatibility, Prometheus metrics, Kubernetes-native deployment, and comprehensive benchmarking tools.
 
-This is done using an SMPP connection with a Short Message Service Center 
-(SMSC), SMS gateway, SMPP gateway or hub.
+## Features
 
-Supports SMPP versions 3.x and 5 
+- **Dual Protocol Support**: SMPP 3.x/5.x and HTTP/2 REST API
+- **5G Ready**: HTTP/2 interface compatible with 3GPP TS 29.540 SMSF
+- **High Performance**: Async processing with configurable thread pools
+- **Observable**: Prometheus metrics, health endpoints, Grafana dashboards
+- **Cloud Native**: Docker, Kubernetes manifests, Helm-ready
+- **Benchmarkable**: JMH microbenchmarks and load testing tools
 
-![Image description](assets/smpp_session_flow.png)
+## Architecture
 
+```
+                    ┌─────────────────┐
+                    │   SMPP Clients  │
+                    └────────┬────────┘
+                             │ SMPP 3.x/5.x
+                             ▼
+┌─────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  HTTP/2 API │────▶│  SMPP Gateway   │────▶│  Apache Kafka   │
+│  (5G SMSF)  │     │   (Cloudhopper) │     │                 │
+└─────────────┘     └────────┬────────┘     └─────────────────┘
+                             │
+                    ┌────────┴────────┐
+                    │    Metrics      │
+                    │  (Prometheus)   │
+                    └─────────────────┘
+```
 
-[Read More about SMPP Protocol][1]
+## Quick Start
 
+### Prerequisites
 
+- Java 17+
+- Maven 3.8+
+- Apache Kafka (or use provided docker-compose)
 
+### Build
 
+```bash
+# Clone the repository
+git clone https://github.com/bassrehab/smpp-kafka-producer.git
+cd smpp-kafka-producer
 
+# Build
+mvn clean package
 
-Pre-requisites
---
-- [Install Kafka][2] 
-- [SMPP Server Emulator][3]
+# Output in out/smpp-producer/
+```
 
-Additionally, you can write your re-use the test server under `com.subhadipmitra.code.module.ServerMainTest`
+### Run with Docker Compose
 
-SMS and Kafka Payloads
---
-You may want to update the object mappers for the SMS text and Kafka JSON payload.
+```bash
+# Start Kafka, Prometheus, Grafana, and SMPP Gateway
+docker-compose up -d
 
-Update `com.subhadipmitra.code.module.models`
+# View logs
+docker-compose logs -f smpp-producer
+```
 
-Compile and Run
---
-1. Clone Repository
-`git clone https://github.com/bassrehab/smpp-kafka-producer.git`
-2. Change Folder
-`cd smpp-kafka-producer`
-3. Optional, upgrade dependencies
-`mvn versions:display-dependency-updates`
-4. Compile
-`mvn clean package`
-5. Update  Kafka Configs (Update Kafka for SASL/SSL configs)
-`settings/config.properties`
+### Run Standalone
 
-6. Update SMPP Server Configs
-`settings/context.xml`
-7. Output Directory
-`out/smpp-producer`
-8. Run
-`sh run.sh`
+```bash
+cd out/smpp-producer
 
+java -Xms64m -Xmx2048m \
+    -Dconfig.properties=settings/config.properties \
+    -Dconfig.smpp=settings/context.xml \
+    -Dlog4j2.configurationFile=file:settings/log4j2.xml \
+    -jar smpp-kafka-producer-2.1.0-spring-boot.jar -p 2775
+```
 
+## Configuration
 
+### SMPP Server (`settings/context.xml`)
 
-License
---
-Read LICENSE.md
+```xml
+<bean id="serverConfiguration0" class="com.cloudhopper.smpp.SmppServerConfiguration">
+    <property name="port" value="2775"/>
+    <property name="systemId" value="smppserver"/>
+    <property name="maxConnectionSize" value="100"/>
+    <property name="defaultWindowSize" value="50"/>
+</bean>
+```
 
-[1]: https://smpp.org/ "SMPP Webpage"
+### Kafka Producer (`settings/config.properties`)
 
-[2]: https://kafka.apache.org/quickstart "kafka quickstart"
+```properties
+source.smpp.kafka.producer.brokers=localhost:9092
+source.smpp.kafka.producer.topics=TR_SMPP
+source.smpp.kafka.producer.acks=all
+```
 
-[3]: https://smscarrier.com/smsc-simulator/ "smpp server emulator"
+### HTTP API
+
+```properties
+http.api.enabled=true
+http.api.port=8080
+```
+
+## API Endpoints
+
+### SMPP Protocol
+
+| Port | Protocol | Description |
+|------|----------|-------------|
+| 2775 | SMPP | Default SMPP server port |
+
+### HTTP/2 REST API
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/v1/sms` | POST | Submit single SMS |
+| `/api/v1/sms/batch` | POST | Submit batch SMS |
+| `/api/v1/sms/status` | GET | Query message status |
+| `/health` | GET | Health check |
+| `/health/live` | GET | Kubernetes liveness |
+| `/health/ready` | GET | Kubernetes readiness |
+| `/metrics` | GET | Prometheus metrics |
+
+### Example: Submit SMS via HTTP
+
+```bash
+curl -X POST http://localhost:8080/api/v1/sms \
+  -H "Content-Type: application/json" \
+  -d '{
+    "destination": "+1234567890",
+    "message": "KEYWORD,VALUE,EXTRA"
+  }'
+```
+
+## Metrics
+
+Prometheus metrics available at `http://localhost:9090/metrics`:
+
+| Metric | Description |
+|--------|-------------|
+| `smpp_messages_received_total` | Total SMPP messages received |
+| `smpp_messages_processed_total` | Successfully processed messages |
+| `smpp_processing_duration_seconds` | Processing latency histogram |
+| `kafka_messages_sent_total` | Messages sent to Kafka |
+| `kafka_send_duration_seconds` | Kafka send latency |
+| `http_messages_received_total` | HTTP API messages received |
+| `smpp_queue_size` | Current queue depth |
+| `smpp_active_sessions` | Active SMPP sessions |
+
+## Kubernetes Deployment
+
+```bash
+# Deploy to Kubernetes
+kubectl apply -k k8s/
+
+# Check status
+kubectl -n smpp-producer get pods
+
+# View logs
+kubectl -n smpp-producer logs -f deployment/smpp-producer
+```
+
+## Benchmarking
+
+### JMH Microbenchmarks
+
+```bash
+# Build benchmarks
+mvn clean package -Pbenchmark
+
+# Run all benchmarks
+java -jar target/benchmarks.jar
+
+# Run specific benchmark
+java -jar target/benchmarks.jar SMSSerializationBenchmark
+```
+
+### Load Testing
+
+```bash
+java -cp smpp-kafka-producer-*.jar \
+    io.smppgateway.simulation.LoadTestRunner \
+    --host localhost \
+    --port 2775 \
+    --rate 1000 \
+    --duration 60 \
+    --connections 4
+```
+
+## Project Structure
+
+```
+smpp-kafka-producer/
+├── src/main/java/io/smppgateway/
+│   ├── init/          # Application entry point
+│   ├── server/        # SMPP server implementation
+│   ├── http/          # HTTP/2 REST API
+│   ├── producer/      # Kafka producers
+│   ├── events/        # Internal event queue
+│   ├── metrics/       # Prometheus metrics
+│   ├── simulation/    # Load testing tools
+│   └── config/        # Configuration loaders
+├── settings/          # Configuration files
+├── k8s/              # Kubernetes manifests
+├── docker/           # Docker configurations
+└── out/              # Build output
+```
+
+## Development
+
+### Run Tests
+
+```bash
+mvn test
+```
+
+### Check Dependencies
+
+```bash
+mvn versions:display-dependency-updates
+```
+
+### Code Style
+
+The project follows standard Java conventions with:
+- 4-space indentation
+- 120 character line limit
+- Javadoc for public APIs
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.
+
+## References
+
+- [SMPP Protocol Specification](https://smpp.org/)
+- [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
+- [Cloudhopper SMPP](https://github.com/twitter/cloudhopper-smpp)
+- [3GPP TS 29.540 - 5G SMS](https://www.3gpp.org/specifications)
