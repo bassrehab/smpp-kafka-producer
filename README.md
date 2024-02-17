@@ -1,10 +1,31 @@
-# SMPP Kafka Producer
+# SMPP Gateway
 
-[![Java Version](https://img.shields.io/badge/Java-17+-blue.svg)](https://openjdk.org/)
-[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](LICENSE)
-[![Build](https://img.shields.io/badge/Build-Maven-orange.svg)](pom.xml)
+<p align="center">
+  <a href="https://smppgateway.io">
+    <img src="docs/assets/logo.svg" alt="SMPP Gateway" width="200">
+  </a>
+</p>
 
-A high-performance, production-ready SMPP-to-Kafka bridge that receives SMS messages via SMPP protocol and publishes them to Apache Kafka topics. Features include HTTP/2 REST API for 5G network compatibility, Prometheus metrics, Kubernetes-native deployment, and comprehensive benchmarking tools.
+<p align="center">
+  <strong>High-performance SMPP-to-Kafka bridge with 5G-ready HTTP/2 API</strong>
+</p>
+
+<p align="center">
+  <a href="https://smppgateway.io">Website</a> •
+  <a href="https://smppgateway.io/docs">Documentation</a> •
+  <a href="https://smppgateway.io/api">API Reference</a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/bassrehab/smpp-kafka-producer/actions"><img src="https://github.com/bassrehab/smpp-kafka-producer/workflows/CI/badge.svg" alt="Build Status"></a>
+  <a href="https://openjdk.org/"><img src="https://img.shields.io/badge/Java-17+-blue.svg" alt="Java Version"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="License"></a>
+  <a href="https://github.com/bassrehab/smpp-kafka-producer/releases"><img src="https://img.shields.io/github/v/release/bassrehab/smpp-kafka-producer" alt="Release"></a>
+</p>
+
+---
+
+A production-ready SMPP-to-Kafka bridge that receives SMS messages via SMPP protocol and publishes them to Apache Kafka topics. Features include HTTP/2 REST API for 5G network compatibility, Prometheus metrics, Kubernetes-native deployment, and comprehensive benchmarking tools.
 
 ## Features
 

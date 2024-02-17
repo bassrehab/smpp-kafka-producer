@@ -6,6 +6,31 @@
     <groupId>io.smppgateway</groupId>
     <artifactId>smpp-kafka-producer</artifactId>
     <version>2.1.0</version>
+    <packaging>jar</packaging>
+
+    <name>SMPP Gateway</name>
+    <description>High-performance SMPP-to-Kafka bridge with 5G-ready HTTP/2 API</description>
+    <url>https://smppgateway.io</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/bassrehab/smpp-kafka-producer</url>
+        <connection>scm:git:git://github.com/bassrehab/smpp-kafka-producer.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/bassrehab/smpp-kafka-producer.git</developerConnection>
+    </scm>
+
+    <issueManagement>
+        <system>GitHub Issues</system>
+        <url>https://github.com/bassrehab/smpp-kafka-producer/issues</url>
+    </issueManagement>
+
     <properties>
         <jdk.version>17</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
