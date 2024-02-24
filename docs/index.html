@@ -3,78 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMPP Gateway - High-Performance SMPP-to-Kafka Bridge</title>
-    <meta name="description" content="Production-ready SMPP-to-Kafka bridge with 5G-ready HTTP/2 API, Prometheus metrics, and Kubernetes-native deployment.">
-    <meta name="keywords" content="SMPP, Kafka, SMS, Gateway, 5G, HTTP/2, Java, Kubernetes">
+    <title>SMPP Gateway</title>
+    <meta name="description" content="The modern SMPP-to-Kafka bridge. 5G ready.">
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-
-    <!-- Open Graph -->
     <meta property="og:title" content="SMPP Gateway">
-    <meta property="og:description" content="High-performance SMPP-to-Kafka bridge with 5G-ready HTTP/2 API">
-    <meta property="og:type" content="website">
+    <meta property="og:description" content="The modern SMPP-to-Kafka bridge. 5G ready.">
     <meta property="og:url" content="https://smppgateway.io">
-
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         :root {
-            --primary: #4F46E5;
-            --primary-dark: #4338CA;
-            --secondary: #7C3AED;
-            --text: #1F2937;
-            --text-light: #6B7280;
-            --bg: #FFFFFF;
-            --bg-alt: #F9FAFB;
-            --border: #E5E7EB;
+            --bg: #09090b;
+            --surface: #18181b;
+            --border: #27272a;
+            --text: #fafafa;
+            --text-muted: #a1a1aa;
+            --accent: #3b82f6;
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        html { scroll-behavior: smooth; }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
             color: var(--text);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
         }
 
+        a { color: inherit; text-decoration: none; }
+
         .container {
-            max-width: 1200px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 0 24px;
         }
 
-        /* Header */
-        header {
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border);
-            position: sticky;
+        /* Nav */
+        nav {
+            position: fixed;
             top: 0;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            left: 0;
+            right: 0;
             z-index: 100;
+            padding: 20px 0;
+            background: rgba(9, 9, 11, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s;
         }
 
-        nav {
+        nav.scrolled { border-bottom-color: var(--border); }
+
+        nav .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
         .logo {
+            font-weight: 600;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 700;
-            font-size: 1.25rem;
+            gap: 10px;
         }
 
-        .logo img {
-            width: 40px;
-            height: 40px;
-        }
+        .logo svg { width: 28px; height: 28px; }
 
         .nav-links {
             display: flex;
@@ -83,416 +80,398 @@
         }
 
         .nav-links a {
-            text-decoration: none;
-            color: var(--text-light);
-            font-weight: 500;
+            color: var(--text-muted);
+            font-size: 0.9rem;
             transition: color 0.2s;
         }
 
-        .nav-links a:hover {
-            color: var(--primary);
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-        }
-
-        .btn-secondary {
-            background: var(--bg-alt);
-            color: var(--text);
-            border: 1px solid var(--border);
-        }
-
-        .btn-secondary:hover {
-            border-color: var(--primary);
-            color: var(--primary);
-        }
+        .nav-links a:hover { color: var(--text); }
 
         /* Hero */
         .hero {
-            padding: 100px 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%);
+            padding: 120px 24px 80px;
         }
 
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
+        .hero-content { max-width: 700px; }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+        }
+
+        .badge .dot {
+            width: 6px;
+            height: 6px;
+            background: #22c55e;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        h1 {
+            font-size: clamp(3rem, 8vw, 5rem);
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
             margin-bottom: 24px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
         }
 
         .hero p {
-            font-size: 1.25rem;
-            color: var(--text-light);
-            max-width: 600px;
-            margin: 0 auto 40px;
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 500px;
+            margin: 0 auto 48px;
         }
 
-        .hero-buttons {
+        .cta-group {
             display: flex;
             gap: 16px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
-        .hero-code {
-            margin-top: 60px;
-            background: #1E1E1E;
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--text);
+            color: var(--bg);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(255,255,255,0.1);
+        }
+
+        .btn-ghost {
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-ghost:hover {
+            border-color: var(--text-muted);
+            color: var(--text);
+        }
+
+        /* Code block */
+        .code-block {
+            margin-top: 80px;
             text-align: left;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            padding: 12px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .code-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--border);
+        }
+
+        .code-content {
+            padding: 24px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            line-height: 1.8;
             overflow-x: auto;
         }
 
-        .hero-code code {
-            color: #D4D4D4;
-            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-            font-size: 0.875rem;
-        }
-
-        .hero-code .comment {
-            color: #6A9955;
-        }
-
-        .hero-code .command {
-            color: #DCDCAA;
-        }
+        .code-content .comment { color: #6b7280; }
+        .code-content .cmd { color: #22c55e; }
+        .code-content .flag { color: #3b82f6; }
 
         /* Features */
         .features {
-            padding: 100px 0;
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
         }
 
-        .section-title {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-
-        .section-title h2 {
-            font-size: 2.5rem;
+        .section-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-muted);
             margin-bottom: 16px;
         }
 
-        .section-title p {
-            color: var(--text-light);
-            font-size: 1.125rem;
+        .features h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 64px;
+            max-width: 500px;
         }
 
-        .features-grid {
+        .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 32px;
-        }
-
-        .feature-card {
-            padding: 32px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            transition: all 0.3s;
+            border-radius: 12px;
+            overflow: hidden;
         }
 
-        .feature-card:hover {
-            border-color: var(--primary);
-            box-shadow: 0 10px 40px rgba(79, 70, 229, 0.1);
+        .feature {
+            background: var(--bg);
+            padding: 40px 32px;
         }
 
         .feature-icon {
-            width: 48px;
-            height: 48px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            width: 40px;
+            height: 40px;
             margin-bottom: 20px;
+            color: var(--text-muted);
         }
 
-        .feature-icon svg {
-            width: 24px;
-            height: 24px;
-            color: white;
+        .feature h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
         }
 
-        .feature-card h3 {
-            font-size: 1.25rem;
-            margin-bottom: 12px;
+        .feature p {
+            font-size: 0.9rem;
+            color: var(--text-muted);
         }
 
-        .feature-card p {
-            color: var(--text-light);
+        /* Specs */
+        .specs {
+            padding: 120px 0;
+            border-top: 1px solid var(--border);
         }
 
-        /* Architecture */
-        .architecture {
-            padding: 100px 0;
-            background: var(--bg-alt);
+        .specs h2 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 64px;
         }
 
-        .arch-diagram {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 40px;
-            max-width: 800px;
-            margin: 0 auto;
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 48px;
         }
 
-        .arch-diagram pre {
-            font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-            font-size: 0.875rem;
-            line-height: 1.5;
-            overflow-x: auto;
-        }
-
-        /* CTA */
-        .cta {
-            padding: 100px 0;
-            text-align: center;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: white;
-        }
-
-        .cta h2 {
+        .spec-value {
             font-size: 2.5rem;
-            margin-bottom: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .cta p {
-            opacity: 0.9;
-            font-size: 1.125rem;
-            margin-bottom: 32px;
-        }
-
-        .cta .btn-primary {
-            background: white;
-            color: var(--primary);
-        }
-
-        .cta .btn-primary:hover {
-            background: #F3F4F6;
+        .spec-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
         /* Footer */
         footer {
-            padding: 60px 0;
+            padding: 48px 0;
             border-top: 1px solid var(--border);
         }
 
-        .footer-content {
+        footer .container {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 24px;
         }
 
         .footer-links {
             display: flex;
-            gap: 24px;
+            gap: 32px;
             list-style: none;
         }
 
         .footer-links a {
-            text-decoration: none;
-            color: var(--text-light);
+            color: var(--text-muted);
+            font-size: 0.9rem;
         }
 
-        .footer-links a:hover {
-            color: var(--primary);
+        .footer-links a:hover { color: var(--text); }
+
+        .footer-right {
+            font-size: 0.85rem;
+            color: var(--text-muted);
         }
 
         /* Responsive */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
-            }
-
-            .nav-links {
-                display: none;
-            }
-
-            .features-grid {
-                grid-template-columns: 1fr;
-            }
+            .nav-links { display: none; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .spec-grid { grid-template-columns: repeat(2, 1fr); gap: 32px; }
+            footer .container { flex-direction: column; gap: 24px; }
         }
     </style>
 </head>
 <body>
-    <header>
+    <nav id="nav">
         <div class="container">
-            <nav>
-                <a href="/" class="logo">
-                    <img src="assets/logo.svg" alt="SMPP Gateway">
-                    SMPP Gateway
-                </a>
-                <ul class="nav-links">
-                    <li><a href="#features">Features</a></li>
-                    <li><a href="api/openapi.yaml">API</a></li>
-                    <li><a href="https://github.com/bassrehab/smpp-kafka-producer">GitHub</a></li>
-                </ul>
+            <a href="/" class="logo">
+                <svg viewBox="0 0 200 200" fill="currentColor">
+                    <rect width="200" height="200" rx="40" fill="#3b82f6"/>
+                    <rect x="40" y="50" width="120" height="80" rx="10" fill="none" stroke="#fff" stroke-width="8"/>
+                    <path d="M40 60 L100 100 L160 60" fill="none" stroke="#fff" stroke-width="8"/>
+                    <path d="M100 140 L100 170 M85 155 L100 170 L115 155" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round"/>
+                </svg>
+                SMPP Gateway
+            </a>
+            <ul class="nav-links">
+                <li><a href="https://github.com/bassrehab/smpp-kafka-producer#quick-start">Docs</a></li>
+                <li><a href="api/openapi.yaml">API</a></li>
+                <li><a href="https://github.com/bassrehab/smpp-kafka-producer">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-content">
+            <div class="badge">
+                <span class="dot"></span>
+                v2.1 — Now with HTTP/2 API
+            </div>
+            <h1>SMS at scale.</h1>
+            <p>The modern SMPP-to-Kafka bridge. Dual protocol support. Observable. Cloud native. 5G ready.</p>
+            <div class="cta-group">
                 <a href="https://github.com/bassrehab/smpp-kafka-producer" class="btn btn-primary">
                     Get Started
                 </a>
-            </nav>
-        </div>
-    </header>
-
-    <section class="hero">
-        <div class="container">
-            <h1>SMPP Gateway</h1>
-            <p>High-performance SMPP-to-Kafka bridge with 5G-ready HTTP/2 REST API. Production-ready with Prometheus metrics and Kubernetes-native deployment.</p>
-            <div class="hero-buttons">
-                <a href="https://github.com/bassrehab/smpp-kafka-producer" class="btn btn-primary">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+                <a href="https://github.com/bassrehab/smpp-kafka-producer" class="btn btn-ghost">
                     View on GitHub
                 </a>
-                <a href="#features" class="btn btn-secondary">Learn More</a>
             </div>
-            <div class="hero-code">
-                <code>
-                    <span class="comment"># Quick start with Docker Compose</span><br>
-                    <span class="command">docker-compose up -d</span><br><br>
-                    <span class="comment"># Submit SMS via HTTP/2 API</span><br>
-                    <span class="command">curl -X POST http://localhost:8080/api/v1/sms \</span><br>
-                    <span class="command">&nbsp;&nbsp;-H "Content-Type: application/json" \</span><br>
-                    <span class="command">&nbsp;&nbsp;-d '{"destination": "+1234567890", "message": "Hello, 5G!"}'</span>
-                </code>
+            <div class="code-block">
+                <div class="code-header">
+                    <span class="code-dot"></span>
+                    <span class="code-dot"></span>
+                    <span class="code-dot"></span>
+                </div>
+                <div class="code-content">
+                    <span class="comment"># Start the gateway</span><br>
+                    <span class="cmd">docker-compose</span> up <span class="flag">-d</span><br><br>
+                    <span class="comment"># Send via HTTP/2</span><br>
+                    <span class="cmd">curl</span> <span class="flag">-X POST</span> localhost:8080/api/v1/sms \<br>
+                    &nbsp;&nbsp;<span class="flag">-d</span> '{"destination": "+1234567890", "message": "Hello"}'
+                </div>
             </div>
         </div>
     </section>
 
-    <section class="features" id="features">
+    <section class="features">
         <div class="container">
-            <div class="section-title">
-                <h2>Features</h2>
-                <p>Everything you need for production SMS processing</p>
-            </div>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
-                    </div>
-                    <h3>Dual Protocol Support</h3>
-                    <p>SMPP 3.x/5.x for legacy systems and HTTP/2 REST API for modern 5G networks. One gateway for all your SMS needs.</p>
+            <div class="section-label">Capabilities</div>
+            <h2>Everything you need for production SMS infrastructure.</h2>
+            <div class="feature-grid">
+                <div class="feature">
+                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                    <h3>Dual Protocol</h3>
+                    <p>SMPP 3.x/5.x and HTTP/2 REST API. One gateway for legacy and modern systems.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
-                    </div>
-                    <h3>5G Ready</h3>
-                    <p>HTTP/2 interface compatible with 3GPP TS 29.540 SMSF. Ready for next-generation mobile networks.</p>
+                <div class="feature">
+                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                    <h3>5G Native</h3>
+                    <p>HTTP/2 interface compatible with 3GPP TS 29.540 SMSF specification.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
-                    </div>
+                <div class="feature">
+                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                     <h3>Observable</h3>
-                    <p>Prometheus metrics, Grafana dashboards, and health endpoints. Full visibility into your SMS pipeline.</p>
+                    <p>Prometheus metrics. Grafana dashboards. Health probes. Full visibility.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                    </div>
+                <div class="feature">
+                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                     <h3>Cloud Native</h3>
-                    <p>Docker images, Kubernetes manifests, and HPA for auto-scaling. Deploy anywhere with confidence.</p>
+                    <p>Docker. Kubernetes. HPA auto-scaling. Deploy anywhere.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                    </div>
-                    <h3>High Performance</h3>
-                    <p>Async processing with configurable thread pools. Benchmarked with JMH for predictable performance.</p>
+                <div class="feature">
+                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    <h3>Low Latency</h3>
+                    <p>Async processing. Configurable thread pools. JMH benchmarked.</p>
                 </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
-                    </div>
-                    <h3>Production Ready</h3>
-                    <p>Battle-tested with comprehensive test coverage. Used in production environments worldwide.</p>
+                <div class="feature">
+                    <svg class="feature-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                    <h3>Secure</h3>
+                    <p>Java 17 LTS. All CVEs patched. TLS ready. Non-root containers.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <section class="architecture">
+    <section class="specs">
         <div class="container">
-            <div class="section-title">
-                <h2>Architecture</h2>
-                <p>Simple, scalable, and resilient design</p>
+            <div class="section-label">Specifications</div>
+            <h2>Built for performance.</h2>
+            <div class="spec-grid">
+                <div class="spec">
+                    <div class="spec-value">17</div>
+                    <div class="spec-label">Java LTS Version</div>
+                </div>
+                <div class="spec">
+                    <div class="spec-value">2</div>
+                    <div class="spec-label">Protocol Support</div>
+                </div>
+                <div class="spec">
+                    <div class="spec-value">&lt;1ms</div>
+                    <div class="spec-label">Processing Latency</div>
+                </div>
+                <div class="spec">
+                    <div class="spec-value">3.9</div>
+                    <div class="spec-label">Kafka Client Version</div>
+                </div>
             </div>
-            <div class="arch-diagram">
-                <pre>
-                    +-------------------+
-                    |   SMPP Clients    |
-                    +--------+----------+
-                             | SMPP 3.x/5.x
-                             v
-+---------------+   +------------------+   +------------------+
-|  HTTP/2 API   |-->|   SMPP Gateway   |-->|   Apache Kafka   |
-|  (5G SMSF)    |   |   (Cloudhopper)  |   |                  |
-+---------------+   +--------+---------+   +------------------+
-                             |
-                    +--------v---------+
-                    |     Metrics      |
-                    |   (Prometheus)   |
-                    +------------------+
-                </pre>
-            </div>
-        </div>
-    </section>
-
-    <section class="cta">
-        <div class="container">
-            <h2>Ready to Get Started?</h2>
-            <p>Deploy your SMPP gateway in minutes with Docker Compose or Kubernetes.</p>
-            <a href="https://github.com/bassrehab/smpp-kafka-producer#quick-start" class="btn btn-primary">
-                Quick Start Guide
-            </a>
         </div>
     </section>
 
     <footer>
         <div class="container">
-            <div class="footer-content">
-                <div>
-                    <a href="/" class="logo">
-                        <img src="assets/logo.svg" alt="SMPP Gateway" style="width: 32px; height: 32px;">
-                        SMPP Gateway
-                    </a>
-                </div>
-                <ul class="footer-links">
-                    <li><a href="https://github.com/bassrehab/smpp-kafka-producer">GitHub</a></li>
-                    <li><a href="api/openapi.yaml">API Docs</a></li>
-                    <li><a href="https://github.com/bassrehab/smpp-kafka-producer/blob/master/LICENSE">License</a></li>
-                </ul>
-                <div style="color: var(--text-light);">
-                    Apache 2.0 License
-                </div>
-            </div>
+            <ul class="footer-links">
+                <li><a href="https://github.com/bassrehab/smpp-kafka-producer">GitHub</a></li>
+                <li><a href="api/openapi.yaml">API Reference</a></li>
+                <li><a href="https://github.com/bassrehab/smpp-kafka-producer/blob/master/LICENSE">License</a></li>
+            </ul>
+            <div class="footer-right">Apache 2.0</div>
         </div>
     </footer>
+
+    <script>
+        // Nav scroll effect
+        const nav = document.getElementById('nav');
+        window.addEventListener('scroll', () => {
+            nav.classList.toggle('scrolled', window.scrollY > 20);
+        });
+    </script>
 </body>
 </html>
