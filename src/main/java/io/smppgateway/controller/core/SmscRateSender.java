@@ -40,7 +40,7 @@ public class SmscRateSender extends BaseSender {
 			@Override
 			public void run() {
 				try {
-					send(getMessageFactory().createMessage());
+					send((io.smppgateway.smpp.pdu.DeliverSm) getMessageFactory().createMessage());
 				} catch (Exception ex) {
 					logger.warn("Failed to send message", ex);
 				}

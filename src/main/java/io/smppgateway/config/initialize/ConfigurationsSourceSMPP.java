@@ -73,6 +73,10 @@ public class ConfigurationsSourceSMPP {
     public static int SMPP_SERVER_DELTA_RANDOM_DELIVERY_RECEIPT_SCHEDULER_MS;
     public static int SMPP_SERVER_BASE_SENDER_SEND_TIMEOUT_MS;
     public static String SMPP_SERVER_SESSION_PASSWORD;
+    public static String SMPP_SERVER_SYSTEM_ID;
+    public static int SMPP_SERVER_MAX_CONNECTIONS;
+    public static int SMPP_SERVER_WINDOW_SIZE;
+    public static long SMPP_SERVER_REQUEST_TIMEOUT_MS;
 
     /** Metrics Configuration */
     public static int METRICS_SERVER_PORT;
@@ -103,6 +107,16 @@ public class ConfigurationsSourceSMPP {
         SMPP_SERVER_DELTA_RANDOM_DELIVERY_RECEIPT_SCHEDULER_MS = Integer.parseInt(cfg.getProperty("smpp.server.delta.random.delivery.receipt.scheduler.ms"));
         SMPP_SERVER_BASE_SENDER_SEND_TIMEOUT_MS = Integer.parseInt(cfg.getProperty("smpp.server.base.sender.send.timeout.ms"));
         SMPP_SERVER_SESSION_PASSWORD = cfg.getProperty("smpp.server.session.password");
+
+        // SMPP Server configuration (previously in context.xml)
+        String systemId = cfg.getProperty("smpp.server.system.id");
+        SMPP_SERVER_SYSTEM_ID = (systemId != null) ? systemId : "demosmpp";
+        String maxConnections = cfg.getProperty("smpp.server.max.connections");
+        SMPP_SERVER_MAX_CONNECTIONS = (maxConnections != null) ? Integer.parseInt(maxConnections) : 10;
+        String windowSize = cfg.getProperty("smpp.server.window.size");
+        SMPP_SERVER_WINDOW_SIZE = (windowSize != null) ? Integer.parseInt(windowSize) : 20;
+        String requestTimeout = cfg.getProperty("smpp.server.request.timeout.ms");
+        SMPP_SERVER_REQUEST_TIMEOUT_MS = (requestTimeout != null) ? Long.parseLong(requestTimeout) : 30000L;
 
         /* Load Service Module Configurations */
         SOURCE_SMPP_SMS_DELIMITER = cfg.getProperty("source.smpp.sms.delimiter");

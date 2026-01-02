@@ -1,14 +1,19 @@
 package io.smppgateway.simulation;
 
 import com.cloudhopper.commons.charset.CharsetUtil;
-import com.cloudhopper.smpp.*;
-import com.cloudhopper.smpp.impl.DefaultSmppClient;
-import com.cloudhopper.smpp.pdu.SubmitSm;
-import com.cloudhopper.smpp.pdu.SubmitSmResp;
-import com.cloudhopper.smpp.type.*;
+import io.smppgateway.smpp.client.SmppClient;
+import io.smppgateway.smpp.client.SmppClientSession;
+import io.smppgateway.smpp.pdu.SubmitSm;
+import io.smppgateway.smpp.pdu.SubmitSmResp;
+import io.smppgateway.smpp.types.Address;
+import io.smppgateway.smpp.types.CommandStatus;
+import io.smppgateway.smpp.types.DataCoding;
+import io.smppgateway.smpp.types.RegisteredDelivery;
+import io.smppgateway.smpp.types.SmppBindType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.Duration;
 import java.util.Random;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -30,8 +35,7 @@ public class LoadGenerator {
 
     private final ExecutorService executor;
     private final ScheduledExecutorService scheduler;
-    private final SmppClient smppClient;
-    private final CopyOnWriteArrayList<SmppSession> sessions;
+    private final CopyOnWriteArrayList<SmppClientSession> sessions;
     private final Random random;
 
     // Metrics
@@ -64,7 +68,6 @@ public class LoadGenerator {
 
         this.executor = Executors.newFixedThreadPool(connectionCount * 2);
         this.scheduler = Executors.newScheduledThreadPool(2);
-        this.smppClient = new DefaultSmppClient();
         this.sessions = new CopyOnWriteArrayList<>();
         this.random = new Random();
     }
@@ -80,7 +83,7 @@ public class LoadGenerator {
         // Establish connections
         for (int i = 0; i < connectionCount; i++) {
             try {
-                SmppSession session = createSession(i);
+                SmppClientSession session = createSession(i);
                 sessions.add(session);
                 logger.info("Connection {} established", i);
             } catch (Exception e) {
@@ -105,7 +108,7 @@ public class LoadGenerator {
         // Generate messages
         while (running && System.currentTimeMillis() < endTime) {
             if (!sessions.isEmpty()) {
-                SmppSession session = sessions.get(random.nextInt(sessions.size()));
+                SmppClientSession session = sessions.get(random.nextInt(sessions.size()));
                 executor.submit(() -> sendMessage(session));
             }
 
@@ -132,9 +135,9 @@ public class LoadGenerator {
         running = false;
 
         // Close all sessions
-        for (SmppSession session : sessions) {
+        for (SmppClientSession session : sessions) {
             try {
-                session.unbind(5000);
+                session.unbind();
                 session.close();
             } catch (Exception e) {
                 logger.debug("Error closing session", e);
@@ -145,44 +148,40 @@ public class LoadGenerator {
         // Shutdown executors
         scheduler.shutdownNow();
         executor.shutdownNow();
-        smppClient.destroy();
 
         logger.info("Load generator stopped");
     }
 
-    private SmppSession createSession(int index) throws SmppTimeoutException,
-            SmppChannelException, InterruptedException, UnrecoverablePduException {
-        SmppSessionConfiguration config = new SmppSessionConfiguration();
-        config.setWindowSize(50);
-        config.setName("LoadGen-" + index);
-        config.setType(SmppBindType.TRANSCEIVER);
-        config.setHost(host);
-        config.setPort(port);
-        config.setConnectTimeout(10000);
-        config.setSystemId(systemId);
-        config.setPassword(password);
-        config.setRequestExpiryTimeout(30000);
-        config.setWindowMonitorInterval(15000);
-        config.setCountersEnabled(true);
+    private SmppClientSession createSession(int index) throws Exception {
+        SmppClient client = SmppClient.builder()
+            .host(host)
+            .port(port)
+            .systemId(systemId)
+            .password(password)
+            .bindType(SmppBindType.TRANSCEIVER)
+            .windowSize(50)
+            .connectTimeout(Duration.ofSeconds(10))
+            .requestTimeout(Duration.ofSeconds(30))
+            .build();
 
-        return smppClient.bind(config);
+        return client.connect();
     }
 
-    private void sendMessage(SmppSession session) {
+    private void sendMessage(SmppClientSession session) {
         if (!running || session == null || !session.isBound()) {
             return;
         }
 
         try {
             SubmitSm submit = createSubmitSm();
-            SubmitSmResp response = session.submit(submit, 5000);
+            SubmitSmResp response = session.submitSm(submit, Duration.ofSeconds(5));
 
             messagesSent.incrementAndGet();
-            if (response.getCommandStatus() == SmppConstants.STATUS_OK) {
+            if (response.commandStatus() == CommandStatus.ESME_ROK) {
                 messagesSuccess.incrementAndGet();
             } else {
                 messagesFailed.incrementAndGet();
-                logger.debug("Submit failed with status: {}", response.getCommandStatus());
+                logger.debug("Submit failed with status: {}", response.commandStatus());
             }
         } catch (Exception e) {
             messagesSent.incrementAndGet();
@@ -191,14 +190,12 @@ public class LoadGenerator {
         }
     }
 
-    private SubmitSm createSubmitSm() throws SmppInvalidArgumentException {
-        SubmitSm submit = new SubmitSm();
-
+    private SubmitSm createSubmitSm() {
         // Source address
-        submit.setSourceAddress(new Address((byte) 0x01, (byte) 0x01, generatePhoneNumber()));
+        Address sourceAddress = new Address((byte) 0x01, (byte) 0x01, generatePhoneNumber());
 
         // Destination address
-        submit.setDestAddress(new Address((byte) 0x01, (byte) 0x01, generatePhoneNumber()));
+        Address destAddress = new Address((byte) 0x01, (byte) 0x01, generatePhoneNumber());
 
         // Message content: KEYWORD,VALUE,EXTRADATA format
         String keyword = "TEST" + random.nextInt(100);
@@ -206,10 +203,15 @@ public class LoadGenerator {
         String extra = "LOAD_TEST";
         String message = keyword + "," + value + "," + extra;
 
-        submit.setShortMessage(CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM));
-        submit.setRegisteredDelivery(SmppConstants.REGISTERED_DELIVERY_SMSC_RECEIPT_REQUESTED);
+        byte[] messageBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
 
-        return submit;
+        return SubmitSm.builder()
+            .sourceAddress(sourceAddress)
+            .destAddress(destAddress)
+            .shortMessage(messageBytes)
+            .dataCoding(DataCoding.GSM7)
+            .registeredDelivery(RegisteredDelivery.SMSC_DELIVERY_RECEIPT_REQUESTED)
+            .build();
     }
 
     private String generatePhoneNumber() {
@@ -222,8 +224,8 @@ public class LoadGenerator {
         long failed = messagesFailed.get();
         double successRate = sent > 0 ? (success * 100.0 / sent) : 0;
 
-        logger.info("Stats: sent={}, success={}, failed={}, successRate={:.2f}%",
-                sent, success, failed, successRate);
+        logger.info("Stats: sent={}, success={}, failed={}, successRate={}%",
+                sent, success, failed, String.format("%.2f", successRate));
     }
 
     private void printFinalStats(long startTime) {
@@ -239,8 +241,8 @@ public class LoadGenerator {
         logger.info("Messages sent: {}", sent);
         logger.info("Messages success: {}", success);
         logger.info("Messages failed: {}", failed);
-        logger.info("Actual rate: {:.2f} msg/s", actualRate);
-        logger.info("Success rate: {:.2f}%", successRate);
+        logger.info("Actual rate: {} msg/s", String.format("%.2f", actualRate));
+        logger.info("Success rate: {}%", String.format("%.2f", successRate));
         logger.info("========================");
     }
 

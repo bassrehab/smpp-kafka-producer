@@ -1,33 +1,36 @@
 package io.smppgateway.events.service.producer;
 
-import com.cloudhopper.smpp.pdu.SubmitSm;
 import io.smppgateway.events.service.eventrecord.EventRecord;
+import io.smppgateway.smpp.pdu.SubmitSm;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.concurrent.Callable;
 
+/**
+ * Producer for SMPP events to be processed by the completion service.
+ */
 public class EventsProducer implements Callable<EventRecord> {
 
-	/** Logger Instance */
-	private Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private static final Logger logger = LoggerFactory.getLogger(EventsProducer.class);
 
-	private String producerName;
-	private SubmitSm event;
-	
-	public EventsProducer(String prodName, SubmitSm evt) {
-		this.producerName = prodName;
-		this.event = evt;
-	}
+    private final String producerName;
+    private final SubmitSm event;
 
-	@Override
-	public EventRecord call() throws Exception {
-		logger.debug("CurrentProducer[name="+ this.producerName +", msisdn="+ this.event.getDestAddress().getAddress()  +", at="+ new Date());
+    public EventsProducer(String prodName, SubmitSm evt) {
+        this.producerName = prodName;
+        this.event = evt;
+    }
 
-		EventRecord evtRecord = new EventRecord();
-		evtRecord.setEvt(event);
+    @Override
+    public EventRecord call() throws Exception {
+        logger.debug("CurrentProducer[name={}, msisdn={}, at={}]",
+            producerName, event.destAddress().address(), new Date());
 
-		return evtRecord;
-	}
+        EventRecord evtRecord = new EventRecord();
+        evtRecord.setEvt(event);
+
+        return evtRecord;
+    }
 }

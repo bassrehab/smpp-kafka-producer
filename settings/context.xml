@@ -10,20 +10,8 @@
 	<context:component-scan base-package="io.smppgateway.controller.auto" />
 	<context:mbean-export server="mbeanServer" />
 
-	<bean id="config" class="com.cloudhopper.smpp.SmppServerConfiguration" scope="prototype">
-		<property name="port" value="10001" />
-		<property name="maxConnectionSize" value="10" />
-		<property name="nonBlockingSocketsEnabled" value="true" />
-		<property name="defaultRequestExpiryTimeout" value="30000" />
-		<property name="defaultWindowMonitorInterval" value="15000" />
-		<property name="defaultWindowSize" value="20" />
-		<property name="defaultWindowWaitTimeout" value="90000" />
-		<property name="defaultSessionCountersEnabled" value="true" />
-		<property name="jmxEnabled" value="true" />
-		<property name="jmxDomain" value="SMSC_1" />
-		<property name="systemId" value="demosmpp"/>
-        <property name="name" value="Demo-SMPP-Server"/>
-	</bean>
+	<!-- SMPP Server configuration is now done via SmppServer.builder() in SmscServer.java -->
+	<!-- Default values: port=10001, maxConnections=10, windowSize=20, requestTimeout=30000ms -->
 	<bean id="messageIdGenerator" class="io.smppgateway.controller.auto.ResponseMessageIdGeneratorImpl">
 		<property name="initialMessageIdValue" value="1" />
 	</bean>

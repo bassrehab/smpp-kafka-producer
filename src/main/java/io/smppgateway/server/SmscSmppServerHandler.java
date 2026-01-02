@@ -1,79 +1,114 @@
 package io.smppgateway.server;
 
-import com.cloudhopper.smpp.SmppConstants;
-import com.cloudhopper.smpp.SmppServerHandler;
-import com.cloudhopper.smpp.SmppServerSession;
-import com.cloudhopper.smpp.SmppSessionConfiguration;
-import com.cloudhopper.smpp.pdu.BaseBind;
-import com.cloudhopper.smpp.pdu.BaseBindResp;
-import com.cloudhopper.smpp.type.SmppProcessingException;
+import io.smppgateway.controller.auto.DelayedRequestSenderImpl;
 import io.smppgateway.controller.auto.SmppSessionManager;
 import io.smppgateway.controller.auto.SmscGlobalConfiguration;
+import io.smppgateway.controller.core.DeliveryReceiptScheduler;
+import io.smppgateway.controller.core.ResponseMessageIdGenerator;
+import io.smppgateway.events.service.producer.EventsProducer;
+import io.smppgateway.smpp.pdu.PduRequest;
+import io.smppgateway.smpp.pdu.SubmitSm;
+import io.smppgateway.smpp.server.SmppServerHandler;
+import io.smppgateway.smpp.server.SmppServerSession;
+import io.smppgateway.smpp.types.CommandStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import static io.smppgateway.init.Main.METRICS_SMPP_PRODUCER_EVENTS_SENT;
+import static io.smppgateway.init.Main.compSMPPService;
 import static io.smppgateway.init.ServerMain.SESSION_PASSWORD;
 import static io.smppgateway.init.ServerMain.SESSION_SYSTEMID;
 import static io.smppgateway.init.ServerMain.isTestMode;
 
 /**
- * Created by Subhadip Mitra <contact@subhadipmitra.com>  on 07/09/17.
+ * Server handler that processes SMPP bind requests and submit_sm PDUs.
+ * This merges the previous SmscSmppServerHandler and SmscSmppSessionHandler.
  *
+ * Created by Subhadip Mitra <contact@subhadipmitra.com> on 07/09/17.
  */
+public class SmscSmppServerHandler implements SmppServerHandler {
 
-public class SmscSmppServerHandler implements SmppServerHandler  {
-	
-	private static final Logger logger = LoggerFactory.getLogger(SmscSmppServerHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(SmscSmppServerHandler.class);
 
-	private SmppSessionManager sessionManager;
-	
-	private SmscGlobalConfiguration config;
+    private final SmppSessionManager sessionManager;
+    private final SmscGlobalConfiguration config;
+    private final DelayedRequestSenderImpl deliverSender;
+    private final ResponseMessageIdGenerator messageIdGenerator;
+    private final DeliveryReceiptScheduler deliveryReceiptScheduler;
 
-	public SmscSmppServerHandler(SmscGlobalConfiguration config) {
-		this.config = config;
-		this.sessionManager = config.getSessionManager();
-	}
+    public SmscSmppServerHandler(SmscGlobalConfiguration config) {
+        this.config = config;
+        this.sessionManager = config.getSessionManager();
+        this.deliverSender = config.getDeliverSender();
+        this.messageIdGenerator = config.getMessageIdGenerator();
+        this.deliveryReceiptScheduler = config.getDeliveryReceiptScheduler();
+    }
 
-	@SuppressWarnings("rawtypes")
-	@Override
-    public void sessionBindRequested(Long sessionId, SmppSessionConfiguration sessionConfiguration, final BaseBind bindRequest) throws SmppProcessingException {
-
-	    if(!isTestMode){ // Disable SystemID password validation check
-            if (!SESSION_SYSTEMID.equals(bindRequest.getSystemId())) {
-                logger.info("Invalid SystemID Received:" + bindRequest.getSystemId());
-                throw new SmppProcessingException(SmppConstants.STATUS_INVSYSID);
-
+    @Override
+    public BindResult authenticate(SmppServerSession session, String systemId,
+                                   String password, PduRequest<?> bindRequest) {
+        if (!isTestMode) {
+            // Validate SystemID
+            if (!SESSION_SYSTEMID.equals(systemId)) {
+                logger.info("Invalid SystemID Received: {}", systemId);
+                return BindResult.failure(CommandStatus.ESME_RINVSYSID);
             }
 
-            if (!SESSION_PASSWORD.equals(bindRequest.getPassword())) {
-                logger.info("Invalid Password Received:" + bindRequest.getPassword());
-                throw new SmppProcessingException(SmppConstants.STATUS_INVPASWD);
+            // Validate Password
+            if (!SESSION_PASSWORD.equals(password)) {
+                logger.info("Invalid Password Received: {}", password);
+                return BindResult.failure(CommandStatus.ESME_RINVPASWD);
             }
         }
 
-
-        sessionConfiguration.setName("Application.SMPP." + sessionConfiguration.getSystemId());
+        logger.info("Authentication successful for systemId: {}", systemId);
+        return BindResult.success(systemId);
     }
 
     @Override
-    public void sessionCreated(Long sessionId, SmppServerSession session, BaseBindResp preparedBindResponse) throws SmppProcessingException {
-	    logger.info("Session created: {}", session);
-        SmscSmppSessionHandler smppSessionHandler = new SmscSmppSessionHandler(session, config);
-        session.serverReady(smppSessionHandler);        
-    	sessionManager.addServerSession(session);
+    public SubmitSmResult handleSubmitSm(SmppServerSession session, SubmitSm submitSm) {
+        try {
+            long messageId = messageIdGenerator.getNextMessageId();
+            String messageIdHex = FormatUtils.formatAsHex(messageId);
+
+            if (!isTestMode) {
+                // Send the SubmitSm to Queue for Kafka processing
+                long eventCount = METRICS_SMPP_PRODUCER_EVENTS_SENT.incrementAndGet();
+                EventsProducer prod = new EventsProducer("Producer_" + eventCount, submitSm);
+                compSMPPService.submit(prod);
+            }
+
+            // Schedule delivery receipt if requested
+            if (submitSm.registeredDelivery().value() > 0 && deliverSender != null) {
+                DeliveryReceiptRecord record = new DeliveryReceiptRecord(
+                    session, submitSm, messageId);
+                record.setDeliverTime(deliveryReceiptScheduler.getDeliveryTimeMillis());
+                deliverSender.scheduleDelivery(record);
+            }
+
+            return SubmitSmResult.success(messageIdHex);
+
+        } catch (Exception e) {
+            logger.error("Error handling submit_sm", e);
+            return SubmitSmResult.failure(CommandStatus.ESME_RSYSERR);
+        }
     }
 
     @Override
-    public void sessionDestroyed(Long sessionId, SmppServerSession session) {
+    public void sessionCreated(SmppServerSession session) {
+        logger.info("Session created: {}", session);
+    }
+
+    @Override
+    public void sessionBound(SmppServerSession session) {
+        logger.info("Session bound: {} (systemId={})", session, session.getSystemId());
+        sessionManager.addServerSession(session);
+    }
+
+    @Override
+    public void sessionDestroyed(SmppServerSession session) {
         logger.info("Session destroyed: {}", session);
-        // print out final stats
-        if (session.hasCounters()) {
-            logger.info(" final session rx-submitSM: {}", session.getCounters().getRxSubmitSM());
-        }
-        
-    	sessionManager.removeServerSession(session);
-        // make sure it's really shutdown
-        session.destroy();
+        logger.info("Final session stats - submitSm received: {}", session.getSubmitSmReceived());
+        sessionManager.removeServerSession(session);
     }
-
 }

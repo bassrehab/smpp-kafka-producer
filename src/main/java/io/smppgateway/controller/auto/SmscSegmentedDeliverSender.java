@@ -1,12 +1,12 @@
 package io.smppgateway.controller.auto;
 
 import com.cloudhopper.commons.charset.CharsetUtil;
-import com.cloudhopper.smpp.SmppConstants;
-import com.cloudhopper.smpp.pdu.DeliverSm;
-import com.cloudhopper.smpp.type.Address;
 import io.smppgateway.controller.core.BaseSender;
 import io.smppgateway.server.PduRequestRecord;
 import io.smppgateway.server.SmppPduUtils;
+import io.smppgateway.smpp.pdu.DeliverSm;
+import io.smppgateway.smpp.types.Address;
+import io.smppgateway.smpp.types.DataCoding;
 import org.springframework.jmx.export.annotation.ManagedOperation;
 import org.springframework.jmx.export.annotation.ManagedResource;
 import org.springframework.stereotype.Component;
@@ -32,10 +32,17 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 		int msgRefNum = nextMsgRefNum.incrementAndGet();
 		for (int i = 1; i <= numberOfSegments; i++) {
 			String shortMessage = "Segment content " + i + ". ";
+			byte[] messageBytes = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
 
-			DeliverSm pdu = SmppPduUtils.createDeliverSm(sourceAddress, destinationAddress, getSessionManager().getNextSequenceNumber());
-			SmppPduUtils.setSegmentOptionalParams(pdu, msgRefNum, i, numberOfSegments);
-			pdu.setShortMessage(CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2));
+			DeliverSm pdu = SmppPduUtils.createDeliverSmWithSarTlv(
+				sourceAddress,
+				destinationAddress,
+				getSessionManager().getNextSequenceNumber(),
+				msgRefNum,
+				i,
+				numberOfSegments,
+				messageBytes
+			);
 			send(pdu);
 		}
 	}
@@ -56,17 +63,32 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 			}
 			String shortMessage = sb.toString();
 
-			DeliverSm pdu = SmppPduUtils.createDeliverSm(sourceAddress, destinationAddress, getSessionManager().getNextSequenceNumber());
-			SmppPduUtils.setSegmentOptionalParams(pdu, msgRefNum, i, numberOfSegments);
-
 			byte[] body = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
-			if (body.length < 256) {
-				pdu.setShortMessage(body);
-			} else {
-				SmppPduUtils.setMessagePayloadOptionalParams(pdu, body);
-			}
-			pdu.setDataCoding(SmppConstants.DATA_CODING_8BITA);
+			DeliverSm pdu;
 
+			if (body.length < 256) {
+				pdu = SmppPduUtils.createDeliverSmWithSarTlv(
+					sourceAddress,
+					destinationAddress,
+					getSessionManager().getNextSequenceNumber(),
+					msgRefNum,
+					i,
+					numberOfSegments,
+					body
+				);
+			} else {
+				// For long messages, use message_payload TLV
+				pdu = SmppPduUtils.createDeliverSmWithMessagePayload(
+					sourceAddress,
+					destinationAddress,
+					getSessionManager().getNextSequenceNumber(),
+					msgRefNum,
+					i,
+					numberOfSegments,
+					body,
+					DataCoding.OCTET_UNSPECIFIED
+				);
+			}
 			send(pdu);
 		}
 	}
@@ -79,11 +101,18 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 		int msgRefNum = nextMsgRefNum.incrementAndGet();
 		for (int i = 1; i <= numberOfSegments; i++) {
 			String shortMessage = "Segment content " + i + ". ";
+			byte[] messageBytes = CharsetUtil.encode(shortMessage, CharsetUtil.NAME_UCS_2);
 
-			DeliverSm pdu = SmppPduUtils.createDeliverSm(sourceAddress, destinationAddress, getSessionManager().getNextSequenceNumber());
-			SmppPduUtils.setSegmentOptionalParams(pdu, msgRefNum, i, numberOfSegments);
-			pdu.setShortMessage(CharsetUtil.encode(shortMessage, CharsetUtil.NAME_UCS_2));
-			pdu.setDataCoding((byte) 0x02); // 8 bit binary encoding
+			DeliverSm pdu = SmppPduUtils.createDeliverSmWithSarTlvAndDataCoding(
+				sourceAddress,
+				destinationAddress,
+				getSessionManager().getNextSequenceNumber(),
+				msgRefNum,
+				i,
+				numberOfSegments,
+				messageBytes,
+				DataCoding.OCTET_UNSPECIFIED
+			);
 			send(pdu);
 		}
 	}
@@ -97,8 +126,15 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 		for (int i = 1; i <= numberOfSegments; i++) {
 			String shortMessage = "Segment content " + i + ". ";
 
-			DeliverSm pdu = SmppPduUtils.createDeliverSm(sourceAddress, destinationAddress, getSessionManager().getNextSequenceNumber());
-			SmppPduUtils.setSegmentUdh00AndMessage(pdu, msgRefNum, i, numberOfSegments, shortMessage);
+			DeliverSm pdu = SmppPduUtils.createDeliverSmWithUdh00(
+				sourceAddress,
+				destinationAddress,
+				getSessionManager().getNextSequenceNumber(),
+				msgRefNum,
+				i,
+				numberOfSegments,
+				shortMessage
+			);
 			send(pdu);
 		}
 	}
@@ -112,8 +148,15 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 		for (int i = 1; i <= numberOfSegments; i++) {
 			String shortMessage = "Segment content " + i + ". ";
 
-			DeliverSm pdu = SmppPduUtils.createDeliverSm(sourceAddress, destinationAddress, getSessionManager().getNextSequenceNumber());
-			SmppPduUtils.setSegmentUdh08AndMessage(pdu, msgRefNum, i, numberOfSegments, shortMessage);
+			DeliverSm pdu = SmppPduUtils.createDeliverSmWithUdh08(
+				sourceAddress,
+				destinationAddress,
+				getSessionManager().getNextSequenceNumber(),
+				msgRefNum,
+				i,
+				numberOfSegments,
+				shortMessage
+			);
 			send(pdu);
 		}
 	}
@@ -127,9 +170,17 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 			int msgRefNum = nextMsgRefNum.incrementAndGet();
 			for (int i = 1; i <= numberOfSegments; i++) {
 				String shortMessage = "Msg " + msgNum + ". Segment content " + i + ". ";
-				DeliverSm pdu = SmppPduUtils.createDeliverSm(sourceAddress, destinationAddress, getSessionManager().getNextSequenceNumber());
-				SmppPduUtils.setSegmentOptionalParams(pdu, msgRefNum, i, numberOfSegments);
-				pdu.setShortMessage(CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2));
+				byte[] messageBytes = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
+
+				DeliverSm pdu = SmppPduUtils.createDeliverSmWithSarTlv(
+					sourceAddress,
+					destinationAddress,
+					getSessionManager().getNextSequenceNumber(),
+					msgRefNum,
+					i,
+					numberOfSegments,
+					messageBytes
+				);
 				getDeliverSender().scheduleDelivery(new PduRequestRecord(pdu, 1000, 5000));
 			}
 		}

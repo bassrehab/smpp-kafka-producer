@@ -1,71 +1,78 @@
 package io.smppgateway.controller.auto;
 
-import com.cloudhopper.smpp.SmppSession;
-import com.cloudhopper.smpp.pdu.PduRequest;
 import io.smppgateway.config.initialize.ConfigurationsSourceSMPP;
 import io.smppgateway.server.DelayedRecord;
 import io.smppgateway.server.DelayedRequestSender;
+import io.smppgateway.smpp.pdu.DeliverSm;
+import io.smppgateway.smpp.pdu.PduRequest;
+import io.smppgateway.smpp.server.SmppServerSession;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
 import static io.smppgateway.init.ServerMain.isTestMode;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-
 /**
- * Class to send delayed response
- * Created by Subhadip Mitra <contact@subhadipmitra.com>  on 07/09/17.
+ * Class to send delayed responses.
+ *
+ * Created by Subhadip Mitra <contact@subhadipmitra.com> on 07/09/17.
  */
 @Component
 public class DelayedRequestSenderImpl extends DelayedRequestSender<DelayedRecord> {
 
-	private static final Logger logger = LoggerFactory.getLogger(DelayedRequestSenderImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(DelayedRequestSenderImpl.class);
 
-	@Autowired
-	private SmppSessionManager sessionManager;
+    @Autowired
+    private SmppSessionManager sessionManager;
 
-	private long sendTimoutMilis = isTestMode? 1000 : ConfigurationsSourceSMPP.SMPP_SERVER_DELAYED_REQUEST_TIMEOUT_MS;
-	public DelayedRequestSenderImpl() {
-		// empty constructor
-	}
+    private long sendTimeoutMillis = isTestMode ? 1000 : ConfigurationsSourceSMPP.SMPP_SERVER_DELAYED_REQUEST_TIMEOUT_MS;
 
-	@Override
-	protected void handleDelayedRecord(DelayedRecord delayedRecord) throws Exception {
-		SmppSession session = delayedRecord.getUsedSession(sessionManager);
-		PduRequest request = delayedRecord.getRequest(sessionManager.getNextSequenceNumber());
-		if (session != null && session.isBound()) {
-			session.sendRequestPdu(request, sendTimoutMilis, false);
-		} else {
-			logger.info("Session does not exist or is not bound {}. Request not sent {}", session, request);
-		}
-	}
+    public DelayedRequestSenderImpl() {
+        // empty constructor
+    }
 
-	public SmppSessionManager getSessionManager() {
-		return sessionManager;
-	}
+    @Override
+    protected void handleDelayedRecord(DelayedRecord delayedRecord) throws Exception {
+        SmppServerSession session = delayedRecord.getUsedSession(sessionManager);
+        PduRequest<?> request = delayedRecord.getRequest(sessionManager.getNextSequenceNumber());
 
-	public void setSessionManager(SmppSessionManager sessionManager) {
-		this.sessionManager = sessionManager;
-	}
+        if (session != null && session.isBound()) {
+            if (request instanceof DeliverSm deliverSm) {
+                session.sendDeliverSm(deliverSm);
+            } else {
+                logger.warn("Unsupported PDU type for delayed sending: {}", request.getClass());
+            }
+        } else {
+            logger.info("Session does not exist or is not bound {}. Request not sent {}", session, request);
+        }
+    }
 
-	@PostConstruct
-	public void init() throws Exception {
-		start();
-	}
+    public SmppSessionManager getSessionManager() {
+        return sessionManager;
+    }
 
-	@PreDestroy
-	public void cleanUp() throws Exception {
-		stop();
-	}
+    public void setSessionManager(SmppSessionManager sessionManager) {
+        this.sessionManager = sessionManager;
+    }
 
-	public long getSendTimoutMilis() {
-		return sendTimoutMilis;
-	}
+    @PostConstruct
+    public void init() throws Exception {
+        start();
+    }
 
-	public void setSendTimoutMilis(long sendTimoutMilis) {
-		this.sendTimoutMilis = sendTimoutMilis;
-	}
+    @PreDestroy
+    public void cleanUp() throws Exception {
+        stop();
+    }
 
+    public long getSendTimeoutMillis() {
+        return sendTimeoutMillis;
+    }
+
+    public void setSendTimeoutMillis(long sendTimeoutMillis) {
+        this.sendTimeoutMillis = sendTimeoutMillis;
+    }
 }

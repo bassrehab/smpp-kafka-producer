@@ -1,54 +1,58 @@
 package io.smppgateway.server;
 
-import com.cloudhopper.smpp.SmppSession;
-import com.cloudhopper.smpp.pdu.PduRequest;
-import com.cloudhopper.smpp.pdu.SubmitSm;
-import com.cloudhopper.smpp.type.Address;
 import io.smppgateway.controller.auto.SmppSessionManager;
-import org.joda.time.DateTime;
+import io.smppgateway.smpp.pdu.PduRequest;
+import io.smppgateway.smpp.pdu.SubmitSm;
+import io.smppgateway.smpp.server.SmppServerSession;
+import io.smppgateway.smpp.types.Address;
+
+import java.time.LocalDateTime;
+
 /**
+ * Record for tracking delivery receipts to be sent.
  *
- * Created by Subhadip Mitra <contact@subhadipmitra.com>  on 07/09/17.
+ * Created by Subhadip Mitra <contact@subhadipmitra.com> on 07/09/17.
  */
 public class DeliveryReceiptRecord extends DelayedRecord {
-	private final Address sourceAddress;
-	private final Address destinationAddress;
-	private final long messageId;
-	private final DateTime submitDate;
 
-	public DeliveryReceiptRecord(SmppSession session, SubmitSm pduRequest, long messageId) {
-		super(session);
-		this.sourceAddress = pduRequest.getDestAddress();
-		this.destinationAddress = pduRequest.getSourceAddress();
-		this.messageId = messageId;
-		this.submitDate = new DateTime();
-	}
+    private final Address sourceAddress;
+    private final Address destinationAddress;
+    private final long messageId;
+    private final LocalDateTime submitDate;
 
-	public Address getSourceAddress() {
-		return sourceAddress;
-	}
+    public DeliveryReceiptRecord(SmppServerSession session, SubmitSm pduRequest, long messageId) {
+        super(session);
+        // Swap source and destination for delivery receipt
+        this.sourceAddress = pduRequest.destAddress();
+        this.destinationAddress = pduRequest.sourceAddress();
+        this.messageId = messageId;
+        this.submitDate = LocalDateTime.now();
+    }
 
-	public Address getDestinationAddress() {
-		return destinationAddress;
-	}
+    public Address getSourceAddress() {
+        return sourceAddress;
+    }
 
-	public long getMessageId() {
-		return messageId;
-	}
+    public Address getDestinationAddress() {
+        return destinationAddress;
+    }
 
-	public DateTime getSubmitDate() {
-		return submitDate;
-	}
+    public long getMessageId() {
+        return messageId;
+    }
 
-	@Override
-	public SmppSession getUsedSession(SmppSessionManager sessionManager) {
-		String systemId = getSession().getConfiguration().getSystemId();
-		return sessionManager.getNextServerSession(systemId);
-	}
+    public LocalDateTime getSubmitDate() {
+        return submitDate;
+    }
 
-	@Override
-	public PduRequest getRequest(int sequenceNumber) throws Exception {
-		return SmppPduUtils.createDeliveryReceipt(this, sequenceNumber);
-	}
+    @Override
+    public SmppServerSession getUsedSession(SmppSessionManager sessionManager) {
+        String systemId = getSession().getSystemId();
+        return sessionManager.getNextServerSession(systemId);
+    }
 
+    @Override
+    public PduRequest<?> getRequest(int sequenceNumber) throws Exception {
+        return SmppPduUtils.createDeliveryReceipt(this, sequenceNumber);
+    }
 }

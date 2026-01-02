@@ -32,10 +32,10 @@ public class SMS {
      */
     public SMS(EventRecord evt) {
 
-        this.msisdn = evt.getEvt().getDestAddress().getAddress();
+        this.msisdn = evt.getEvt().destAddress().address();
 
         // Call SMS Parser and Assign members
-        SMSParser(new String(evt.getEvt().getShortMessage()));
+        SMSParser(new String(evt.getEvt().shortMessage()));
 
 
     }
