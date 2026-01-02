@@ -1,19 +1,13 @@
 # SMPP Gateway
 
 <p align="center">
-  <a href="https://smppgateway.io">
-    <img src="docs/assets/logo.svg" alt="SMPP Gateway" width="200">
-  </a>
-</p>
-
-<p align="center">
   <strong>High-performance SMPP-to-Kafka bridge with 5G-ready HTTP/2 API</strong>
 </p>
 
 <p align="center">
   <a href="https://smppgateway.io">Website</a> •
-  <a href="https://smppgateway.io/docs">Documentation</a> •
-  <a href="https://smppgateway.io/api">API Reference</a>
+  <a href="https://docs.smppgateway.io/smpp-kafka-producer/">Documentation</a> •
+  <a href="https://docs.smppgateway.io/smpp-kafka-producer/http-api/">API Reference</a>
 </p>
 
 <p align="center">
