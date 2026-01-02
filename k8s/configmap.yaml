@@ -62,23 +62,27 @@ data:
     <?xml version="1.0" encoding="UTF-8"?>
     <beans xmlns="http://www.springframework.org/schema/beans"
            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-           xsi:schemaLocation="http://www.springframework.org/schema/beans
-           http://www.springframework.org/schema/beans/spring-beans.xsd">
+           xmlns:context="http://www.springframework.org/schema/context"
+           xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
 
-        <bean id="serverConfiguration0" class="com.cloudhopper.smpp.SmppServerConfiguration">
-            <property name="name" value="SmppServerMain"/>
-            <property name="port" value="2775"/>
-            <property name="bindTimeout" value="5000"/>
-            <property name="systemId" value="smppserver"/>
-            <property name="autoNegotiateInterfaceVersion" value="true"/>
-            <property name="interfaceVersion" value="52"/>
-            <property name="maxConnectionSize" value="100"/>
-            <property name="nonBlockingSocketsEnabled" value="true"/>
-            <property name="defaultWindowSize" value="50"/>
-            <property name="defaultWindowWaitTimeout" value="30000"/>
-            <property name="defaultRequestExpiryTimeout" value="30000"/>
-            <property name="defaultWindowMonitorInterval" value="15000"/>
-            <property name="defaultSessionCountersEnabled" value="true"/>
-            <property name="jmxEnabled" value="false"/>
+        <context:annotation-config />
+        <context:mbean-server />
+        <context:component-scan base-package="io.smppgateway.controller.auto" />
+        <context:mbean-export server="mbeanServer" />
+
+        <!-- SMPP Server configuration is now done via SmppServer.builder() in SmscServer.java -->
+        <!-- Default values: port=2775, maxConnections=100, windowSize=50, requestTimeout=30000ms -->
+        <bean id="messageIdGenerator" class="io.smppgateway.controller.auto.ResponseMessageIdGeneratorImpl">
+            <property name="initialMessageIdValue" value="1" />
+        </bean>
+
+        <bean id="rateSender" class="io.smppgateway.controller.core.SmscRateSender">
+            <property name="messageFactory">
+                <bean class="io.smppgateway.controller.message.DeliverSegmentedMessageFactory">
+                    <property name="numberOfSegments" value="2"></property>
+                    <property name="destAddressDigits" value="1111"></property>
+                </bean>
+            </property>
         </bean>
     </beans>

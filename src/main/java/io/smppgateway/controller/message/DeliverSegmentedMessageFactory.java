@@ -1,6 +1,6 @@
 package io.smppgateway.controller.message;
 
-import com.cloudhopper.commons.charset.CharsetUtil;
+import io.smppgateway.smpp.charset.SmppCharset;
 import io.smppgateway.controller.auto.SmppSessionManager;
 import io.smppgateway.controller.core.BaseSender;
 import io.smppgateway.server.SmppPduUtils;
@@ -46,7 +46,7 @@ public class DeliverSegmentedMessageFactory extends DeliverBaseMessageFactory {
             getDestAddressDigits());
 
         String shortMessage = "Segment content " + nextSegmentId + ". ";
-        byte[] messageBytes = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
+        byte[] messageBytes = SmppCharset.encodeUcs2(shortMessage);
 
         DeliverSm pdu = SmppPduUtils.createDeliverSmWithSarTlv(
             sourceAddress,

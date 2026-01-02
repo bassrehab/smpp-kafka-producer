@@ -1,6 +1,6 @@
 package io.smppgateway.simulation;
 
-import com.cloudhopper.commons.charset.CharsetUtil;
+import io.smppgateway.smpp.charset.SmppCharset;
 import io.smppgateway.smpp.client.SmppClient;
 import io.smppgateway.smpp.client.SmppClientSession;
 import io.smppgateway.smpp.pdu.SubmitSm;
@@ -203,7 +203,7 @@ public class LoadGenerator {
         String extra = "LOAD_TEST";
         String message = keyword + "," + value + "," + extra;
 
-        byte[] messageBytes = CharsetUtil.encode(message, CharsetUtil.CHARSET_GSM);
+        byte[] messageBytes = SmppCharset.encodeGsm7(message);
 
         return SubmitSm.builder()
             .sourceAddress(sourceAddress)

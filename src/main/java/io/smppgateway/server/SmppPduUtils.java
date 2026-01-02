@@ -1,6 +1,6 @@
 package io.smppgateway.server;
 
-import com.cloudhopper.commons.charset.CharsetUtil;
+import io.smppgateway.smpp.charset.SmppCharset;
 import io.smppgateway.smpp.pdu.DeliverSm;
 import io.smppgateway.smpp.pdu.tlv.Tlv;
 import io.smppgateway.smpp.pdu.tlv.TlvTag;
@@ -37,7 +37,7 @@ public class SmppPduUtils {
             STATE_DELIVERED, 0, "-"
         );
 
-        byte[] messageBytes = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
+        byte[] messageBytes = SmppCharset.encodeUcs2(shortMessage);
 
         List<Tlv> tlvs = new ArrayList<>();
         // NOTE: VERY IMPORTANT -- THIS IS A C-STRING!
@@ -85,7 +85,7 @@ public class SmppPduUtils {
         udhHeader[4] = (byte) totalSegmentCount;
         udhHeader[5] = (byte) segmentNum;
 
-        byte[] message = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
+        byte[] message = SmppCharset.encodeUcs2(shortMessage);
         ByteBuffer bb = ByteBuffer.allocate(udhHeader.length + message.length);
         bb.put(udhHeader);
         bb.put(message);
@@ -116,7 +116,7 @@ public class SmppPduUtils {
         udhHeader[5] = (byte) totalSegmentCount;
         udhHeader[6] = (byte) segmentNum;
 
-        byte[] message = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
+        byte[] message = SmppCharset.encodeUcs2(shortMessage);
         ByteBuffer bb = ByteBuffer.allocate(udhHeader.length + message.length);
         bb.put(udhHeader);
         bb.put(message);

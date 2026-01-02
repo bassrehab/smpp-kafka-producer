@@ -1,6 +1,6 @@
 package io.smppgateway.controller.auto;
 
-import com.cloudhopper.commons.charset.CharsetUtil;
+import io.smppgateway.smpp.charset.SmppCharset;
 import io.smppgateway.controller.core.BaseSender;
 import io.smppgateway.server.PduRequestRecord;
 import io.smppgateway.server.SmppPduUtils;
@@ -32,7 +32,7 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 		int msgRefNum = nextMsgRefNum.incrementAndGet();
 		for (int i = 1; i <= numberOfSegments; i++) {
 			String shortMessage = "Segment content " + i + ". ";
-			byte[] messageBytes = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
+			byte[] messageBytes = SmppCharset.encodeUcs2(shortMessage);
 
 			DeliverSm pdu = SmppPduUtils.createDeliverSmWithSarTlv(
 				sourceAddress,
@@ -63,7 +63,7 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 			}
 			String shortMessage = sb.toString();
 
-			byte[] body = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
+			byte[] body = SmppCharset.encodeUcs2(shortMessage);
 			DeliverSm pdu;
 
 			if (body.length < 256) {
@@ -101,7 +101,7 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 		int msgRefNum = nextMsgRefNum.incrementAndGet();
 		for (int i = 1; i <= numberOfSegments; i++) {
 			String shortMessage = "Segment content " + i + ". ";
-			byte[] messageBytes = CharsetUtil.encode(shortMessage, CharsetUtil.NAME_UCS_2);
+			byte[] messageBytes = SmppCharset.encodeUcs2(shortMessage);
 
 			DeliverSm pdu = SmppPduUtils.createDeliverSmWithSarTlvAndDataCoding(
 				sourceAddress,
@@ -170,7 +170,7 @@ public class SmscSegmentedDeliverSender extends BaseSender {
 			int msgRefNum = nextMsgRefNum.incrementAndGet();
 			for (int i = 1; i <= numberOfSegments; i++) {
 				String shortMessage = "Msg " + msgNum + ". Segment content " + i + ". ";
-				byte[] messageBytes = CharsetUtil.encode(shortMessage, CharsetUtil.CHARSET_UCS_2);
+				byte[] messageBytes = SmppCharset.encodeUcs2(shortMessage);
 
 				DeliverSm pdu = SmppPduUtils.createDeliverSmWithSarTlv(
 					sourceAddress,

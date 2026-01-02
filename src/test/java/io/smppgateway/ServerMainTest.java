@@ -1,6 +1,6 @@
 package io.smppgateway;
 
-import com.cloudhopper.commons.charset.CharsetUtil;
+import io.smppgateway.smpp.charset.SmppCharset;
 import io.smppgateway.server.SmscServer;
 import io.smppgateway.controller.auto.SmscGlobalConfiguration;
 import io.smppgateway.smpp.client.SmppClientSession;
@@ -149,7 +149,7 @@ public class ServerMainTest {
         Address destAddress = new Address((byte) 0, (byte) 0, "123456789");
 
         String text160 = "\u20AC Lorem [ipsum] dolor sit amet, consectetur adipiscing elit. Proin feugiat, leo id commodo tincidunt, nibh diam ornare est, vitae accumsan risus lacus sed sem metus.";
-        byte[] messageBytes = CharsetUtil.encode(text160, CharsetUtil.CHARSET_GSM);
+        byte[] messageBytes = SmppCharset.encodeGsm7(text160);
 
         return SubmitSm.builder()
             .sourceAddress(sourceAddress)
