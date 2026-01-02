@@ -1,0 +1,105 @@
+= smpp-kafka-producer Overview
+:navtitle: Overview
+
+smpp-kafka-producer is a production-ready SMPP-to-Kafka bridge that receives SMS messages via SMPP protocol and publishes them to Apache Kafka topics.
+
+== Features
+
+* *Dual Protocol Support* - SMPP 3.x/5.x and HTTP/2 REST API
+* *5G Ready* - HTTP/2 interface compatible with 3GPP TS 29.540 SMSF
+* *High Performance* - Async processing with virtual threads
+* *Observable* - Prometheus metrics, health endpoints
+* *Cloud Native* - Docker, Kubernetes manifests, Helm-ready
+* *Benchmarkable* - JMH microbenchmarks and load testing tools
+
+== Architecture
+
+[source]
+----
+                    ┌─────────────────┐
+                    │   SMPP Clients  │
+                    └────────┬────────┘
+                             │ SMPP 3.x/5.x
+                             ▼
+┌─────────────┐     ┌─────────────────┐     ┌─────────────────┐
+│  HTTP/2 API │────▶│  SMPP Gateway   │────▶│  Apache Kafka   │
+│  (5G SMSF)  │     │   (smpp-core)   │     │                 │
+└─────────────┘     └────────┬────────┘     └─────────────────┘
+                             │
+                    ┌────────┴────────┐
+                    │    Metrics      │
+                    │  (Prometheus)   │
+                    └─────────────────┘
+----
+
+== Quick Start
+
+=== Prerequisites
+
+* Java 21+ (uses virtual threads)
+* Maven 3.8+
+* Apache Kafka (or use provided docker-compose)
+
+=== Build
+
+[source,bash]
+----
+git clone https://github.com/bassrehab/smpp-kafka-producer.git
+cd smpp-kafka-producer
+mvn clean package
+----
+
+=== Run with Docker Compose
+
+[source,bash]
+----
+# Start Kafka, Prometheus, and SMPP Gateway
+docker-compose up -d
+
+# View logs
+docker-compose logs -f smpp-producer
+----
+
+=== Run Standalone
+
+[source,bash]
+----
+java -Xms64m -Xmx2048m \
+    -Dconfig.properties=settings/config.properties \
+    -Dconfig.smpp=settings/context.xml \
+    -jar smpp-kafka-producer-2.1.0-spring-boot.jar -p 2775
+----
+
+== Message Flow
+
+1. *SMPP Client* connects and binds to the gateway
+2. *SubmitSm PDU* received with SMS content
+3. *Message processed* and converted to JSON
+4. *Published to Kafka* topic
+5. *SubmitSmResp* returned with message ID
+6. *Delivery receipt* sent when message delivered
+
+== Ports
+
+[cols="1,1,2"]
+|===
+|Port |Protocol |Description
+
+|2775
+|SMPP
+|SMPP server port
+
+|8080
+|HTTP/2
+|REST API
+
+|9090
+|HTTP
+|Prometheus metrics
+|===
+
+== Next Steps
+
+* xref:configuration.adoc[Configuration] - Kafka, SMPP, and HTTP settings
+* xref:deployment.adoc[Deployment] - Docker and Kubernetes
+* xref:http-api.adoc[HTTP API] - REST API reference

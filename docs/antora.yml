@@ -1,0 +1,6 @@
+name: smpp-kafka-producer
+title: smpp-kafka-producer
+version: '2.1'
+start_page: index.adoc
+nav:
+  - modules/ROOT/nav.adoc

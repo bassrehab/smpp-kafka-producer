@@ -1,0 +1,206 @@
+= HTTP API
+:navtitle: HTTP API
+
+smpp-kafka-producer provides an HTTP/2 REST API for submitting SMS messages, compatible with 5G SMSF requirements.
+
+== Endpoints
+
+[cols="1,1,2"]
+|===
+|Endpoint |Method |Description
+
+|`/api/v1/sms`
+|POST
+|Submit single SMS
+
+|`/api/v1/sms/batch`
+|POST
+|Submit batch SMS
+
+|`/api/v1/sms/status`
+|GET
+|Query message status
+
+|`/health`
+|GET
+|Health check
+
+|`/health/live`
+|GET
+|Kubernetes liveness
+
+|`/health/ready`
+|GET
+|Kubernetes readiness
+
+|`/metrics`
+|GET
+|Prometheus metrics
+|===
+
+== Submit SMS
+
+=== Request
+
+[source,http]
+----
+POST /api/v1/sms HTTP/2
+Content-Type: application/json
+
+{
+  "source": "+12025551234",
+  "destination": "+12025555678",
+  "message": "Hello from HTTP API",
+  "registeredDelivery": true
+}
+----
+
+=== Response
+
+[source,json]
+----
+{
+  "messageId": "1a2b3c4d5e6f",
+  "status": "accepted",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+----
+
+=== Fields
+
+[cols="1,1,1,2"]
+|===
+|Field |Type |Required |Description
+
+|`source`
+|string
+|Yes
+|Source address (sender)
+
+|`destination`
+|string
+|Yes
+|Destination address (recipient)
+
+|`message`
+|string
+|Yes
+|Message content
+
+|`registeredDelivery`
+|boolean
+|No
+|Request delivery receipt
+
+|`validityPeriod`
+|string
+|No
+|Message validity period
+
+|`priority`
+|integer
+|No
+|Priority (0-3)
+|===
+
+== Submit Batch
+
+=== Request
+
+[source,http]
+----
+POST /api/v1/sms/batch HTTP/2
+Content-Type: application/json
+
+{
+  "messages": [
+    {
+      "source": "+12025551234",
+      "destination": "+12025555678",
+      "message": "Message 1"
+    },
+    {
+      "source": "+12025551234",
+      "destination": "+12025559999",
+      "message": "Message 2"
+    }
+  ]
+}
+----
+
+=== Response
+
+[source,json]
+----
+{
+  "accepted": 2,
+  "rejected": 0,
+  "results": [
+    { "messageId": "1a2b3c4d5e6f", "status": "accepted" },
+    { "messageId": "2b3c4d5e6f7g", "status": "accepted" }
+  ]
+}
+----
+
+== Error Responses
+
+=== 400 Bad Request
+
+[source,json]
+----
+{
+  "error": "validation_error",
+  "message": "Invalid destination address format",
+  "field": "destination"
+}
+----
+
+=== 429 Too Many Requests
+
+[source,json]
+----
+{
+  "error": "rate_limited",
+  "message": "Rate limit exceeded",
+  "retryAfter": 60
+}
+----
+
+=== 503 Service Unavailable
+
+[source,json]
+----
+{
+  "error": "service_unavailable",
+  "message": "Kafka broker not available"
+}
+----
+
+== cURL Examples
+
+=== Send SMS
+
+[source,bash]
+----
+curl -X POST http://localhost:8080/api/v1/sms \
+  -H "Content-Type: application/json" \
+  -d '{
+    "source": "+12025551234",
+    "destination": "+12025555678",
+    "message": "Hello World"
+  }'
+----
+
+=== Check Health
+
+[source,bash]
+----
+curl http://localhost:8080/health
+----
+
+=== Get Metrics
+
+[source,bash]
+----
+curl http://localhost:9090/metrics
+----

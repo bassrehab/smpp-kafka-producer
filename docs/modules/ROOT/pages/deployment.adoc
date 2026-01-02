@@ -1,0 +1,182 @@
+= Deployment
+:navtitle: Deployment
+
+smpp-kafka-producer can be deployed standalone, with Docker, or on Kubernetes.
+
+== Standalone
+
+=== Build
+
+[source,bash]
+----
+mvn clean package
+cd out/smpp-producer
+----
+
+=== Run
+
+[source,bash]
+----
+java -Xms64m -Xmx2048m \
+    -Dconfig.properties=settings/config.properties \
+    -Dconfig.smpp=settings/context.xml \
+    -Dlog4j2.configurationFile=file:settings/log4j2.xml \
+    -jar smpp-kafka-producer-2.1.0-spring-boot.jar -p 2775
+----
+
+=== JVM Options
+
+[cols="1,1,2"]
+|===
+|Option |Recommended |Description
+
+|`-Xms`
+|64m
+|Initial heap size
+
+|`-Xmx`
+|2048m
+|Maximum heap size
+
+|`-XX:+UseG1GC`
+|-
+|G1 garbage collector
+
+|`-XX:MaxGCPauseMillis`
+|200
+|Target GC pause
+|===
+
+== Docker
+
+=== Build Image
+
+[source,bash]
+----
+docker build -t smpp-kafka-producer:latest .
+----
+
+=== Run Container
+
+[source,bash]
+----
+docker run -d \
+    --name smpp-producer \
+    -p 2775:2775 \
+    -p 8080:8080 \
+    -p 9090:9090 \
+    -e KAFKA_BROKERS=kafka:9092 \
+    smpp-kafka-producer:latest
+----
+
+=== Docker Compose
+
+[source,yaml]
+----
+version: '3.8'
+services:
+  smpp-producer:
+    image: smpp-kafka-producer:latest
+    ports:
+      - "2775:2775"
+      - "8080:8080"
+      - "9090:9090"
+    environment:
+      - KAFKA_BROKERS=kafka:9092
+      - KAFKA_TOPIC=TR_SMPP
+    depends_on:
+      - kafka
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+----
+
+== Kubernetes
+
+=== Deploy
+
+[source,bash]
+----
+kubectl apply -k k8s/
+----
+
+=== Deployment Manifest
+
+[source,yaml]
+----
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smpp-producer
+  namespace: smpp-producer
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: smpp-producer
+  template:
+    spec:
+      containers:
+        - name: smpp-producer
+          image: smpp-kafka-producer:latest
+          ports:
+            - containerPort: 2775
+              name: smpp
+            - containerPort: 8080
+              name: http
+            - containerPort: 9090
+              name: metrics
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "2000m"
+          livenessProbe:
+            httpGet:
+              path: /health/live
+              port: 8080
+            initialDelaySeconds: 30
+          readinessProbe:
+            httpGet:
+              path: /health/ready
+              port: 8080
+            initialDelaySeconds: 10
+----
+
+=== Scaling
+
+[source,bash]
+----
+# Scale replicas
+kubectl scale deployment smpp-producer -n smpp-producer --replicas=4
+
+# Horizontal Pod Autoscaler
+kubectl autoscale deployment smpp-producer \
+    -n smpp-producer \
+    --min=2 --max=10 \
+    --cpu-percent=70
+----
+
+== Health Checks
+
+[cols="1,2"]
+|===
+|Endpoint |Description
+
+|`/health`
+|Overall health status
+
+|`/health/live`
+|Kubernetes liveness probe
+
+|`/health/ready`
+|Kubernetes readiness probe
+|===

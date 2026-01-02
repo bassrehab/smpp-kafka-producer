@@ -1,0 +1,149 @@
+= Metrics
+:navtitle: Metrics
+
+smpp-kafka-producer exposes Prometheus metrics for monitoring and alerting.
+
+== Metrics Endpoint
+
+Metrics are available at `http://localhost:9090/metrics` in Prometheus format.
+
+== Available Metrics
+
+=== SMPP Metrics
+
+[cols="1,1,2"]
+|===
+|Metric |Type |Description
+
+|`smpp_messages_received_total`
+|Counter
+|Total SMPP messages received
+
+|`smpp_messages_processed_total`
+|Counter
+|Successfully processed messages
+
+|`smpp_messages_failed_total`
+|Counter
+|Failed message processing
+
+|`smpp_processing_duration_seconds`
+|Histogram
+|Processing latency
+
+|`smpp_active_sessions`
+|Gauge
+|Currently active SMPP sessions
+
+|`smpp_queue_size`
+|Gauge
+|Current internal queue depth
+|===
+
+=== Kafka Metrics
+
+[cols="1,1,2"]
+|===
+|Metric |Type |Description
+
+|`kafka_messages_sent_total`
+|Counter
+|Messages sent to Kafka
+
+|`kafka_messages_failed_total`
+|Counter
+|Failed Kafka sends
+
+|`kafka_send_duration_seconds`
+|Histogram
+|Kafka send latency
+|===
+
+=== HTTP API Metrics
+
+[cols="1,1,2"]
+|===
+|Metric |Type |Description
+
+|`http_requests_total`
+|Counter
+|Total HTTP requests
+
+|`http_request_duration_seconds`
+|Histogram
+|HTTP request latency
+|===
+
+== Prometheus Configuration
+
+Add to your `prometheus.yml`:
+
+[source,yaml]
+----
+scrape_configs:
+  - job_name: 'smpp-producer'
+    static_configs:
+      - targets: ['smpp-producer:9090']
+    scrape_interval: 15s
+----
+
+== Grafana Dashboard
+
+Import the included Grafana dashboard from `docker/grafana/provisioning/dashboards/smpp-gateway.json`.
+
+=== Key Panels
+
+* *Message Throughput* - Messages per second
+* *Processing Latency* - P50, P95, P99 latencies
+* *Active Sessions* - SMPP session count
+* *Kafka Send Rate* - Messages sent to Kafka
+* *Error Rate* - Failed message percentage
+
+== Alerting Examples
+
+=== High Error Rate
+
+[source,yaml]
+----
+groups:
+  - name: smpp-producer
+    rules:
+      - alert: HighErrorRate
+        expr: |
+          rate(smpp_messages_failed_total[5m]) /
+          rate(smpp_messages_received_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High SMPP error rate"
+          description: "Error rate is above 5%"
+----
+
+=== No Active Sessions
+
+[source,yaml]
+----
+      - alert: NoActiveSessions
+        expr: smpp_active_sessions == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No active SMPP sessions"
+----
+
+=== High Latency
+
+[source,yaml]
+----
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, rate(smpp_processing_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High processing latency"
+          description: "P95 latency is above 1 second"
+----

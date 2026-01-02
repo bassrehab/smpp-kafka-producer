@@ -1,0 +1,179 @@
+= Configuration
+:navtitle: Configuration
+
+smpp-kafka-producer is configured via properties files and Spring XML context.
+
+== Configuration Files
+
+[cols="1,2"]
+|===
+|File |Description
+
+|`settings/config.properties`
+|Kafka and general settings
+
+|`settings/context.xml`
+|Spring beans configuration
+
+|`settings/log4j2.xml`
+|Logging configuration
+|===
+
+== Kafka Configuration
+
+`settings/config.properties`:
+
+[source,properties]
+----
+####### KAFKA CONFIG #######
+source.smpp.kafka.producer.brokers=localhost:9092
+source.smpp.kafka.producer.topics=TR_SMPP
+source.smpp.kafka.producer.client.id=smpp-producer
+source.smpp.kafka.producer.acks=all
+source.smpp.kafka.producer.retries=3
+source.smpp.kafka.producer.linger.ms=1
+source.smpp.kafka.producer.batch.size=16384
+source.smpp.kafka.producer.buffer.memory=33554432
+----
+
+[cols="1,1,2"]
+|===
+|Property |Default |Description
+
+|`brokers`
+|localhost:9092
+|Kafka bootstrap servers
+
+|`topics`
+|TR_SMPP
+|Target Kafka topic
+
+|`acks`
+|all
+|Acknowledgment mode
+
+|`retries`
+|3
+|Retry attempts
+
+|`linger.ms`
+|1
+|Batch linger time
+|===
+
+== SMPP Server Configuration
+
+The SMPP server is configured programmatically using smpp-core:
+
+[source,java]
+----
+SmppServer server = SmppServer.builder()
+    .port(2775)
+    .systemId("smppserver")
+    .maxConnections(100)
+    .windowSize(50)
+    .requestTimeout(Duration.ofSeconds(30))
+    .handler(handler)
+    .build();
+----
+
+Command-line options:
+
+[source,bash]
+----
+java -jar smpp-kafka-producer.jar -p 2775
+java -jar smpp-kafka-producer.jar -p 2775,2776  # Multiple ports
+----
+
+== HTTP API Configuration
+
+[source,properties]
+----
+####### HTTP API CONFIG #######
+http.api.enabled=true
+http.api.port=8080
+http.api.threads=10
+----
+
+== Thread Pool Configuration
+
+[source,properties]
+----
+####### THREAD POOL CONFIG #######
+source.smpp.kafka.producer.threads=10
+source.smpp.kafka.producer.queue.size=1000
+----
+
+== Telemetry Configuration
+
+[source,properties]
+----
+####### TELEMETRY CONFIG #######
+source.smpp.telemetry.enabled=true
+source.smpp.telemetry.interval=60000
+source.smpp.telemetry.topic=TR_SMPP_TELEMETRY
+----
+
+== Spring Context
+
+`settings/context.xml`:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       ...>
+
+    <context:annotation-config />
+    <context:component-scan base-package="io.smppgateway.controller.auto" />
+
+    <!-- Message ID Generator -->
+    <bean id="messageIdGenerator"
+          class="io.smppgateway.controller.auto.ResponseMessageIdGeneratorImpl">
+        <property name="initialMessageIdValue" value="1" />
+    </bean>
+
+    <!-- Rate Sender for delivery receipts -->
+    <bean id="rateSender" class="io.smppgateway.controller.core.SmscRateSender">
+        <property name="messageFactory">
+            <bean class="io.smppgateway.controller.message.DeliverSegmentedMessageFactory">
+                <property name="numberOfSegments" value="2" />
+            </bean>
+        </property>
+    </bean>
+</beans>
+----
+
+== Environment Variables
+
+Configuration can be overridden with environment variables:
+
+[source,bash]
+----
+export KAFKA_BROKERS=kafka:9092
+export KAFKA_TOPIC=SMS_MESSAGES
+export SMPP_PORT=2775
+----
+
+== Logging Configuration
+
+`settings/log4j2.xml`:
+
+[source,xml]
+----
+<Configuration>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="io.smppgateway" level="INFO"/>
+        <Logger name="io.netty" level="WARN"/>
+        <Root level="WARN">
+            <AppenderRef ref="Console"/>
+        </Root>
+    </Loggers>
+</Configuration>
+----
