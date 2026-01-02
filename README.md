@@ -18,7 +18,7 @@
 
 <p align="center">
   <a href="https://github.com/bassrehab/smpp-kafka-producer/actions"><img src="https://github.com/bassrehab/smpp-kafka-producer/workflows/CI/badge.svg" alt="Build Status"></a>
-  <a href="https://openjdk.org/"><img src="https://img.shields.io/badge/Java-17+-blue.svg" alt="Java Version"></a>
+  <a href="https://openjdk.org/"><img src="https://img.shields.io/badge/Java-21+-blue.svg" alt="Java Version"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-Apache%202.0-green.svg" alt="License"></a>
   <a href="https://github.com/bassrehab/smpp-kafka-producer/releases"><img src="https://img.shields.io/github/v/release/bassrehab/smpp-kafka-producer" alt="Release"></a>
 </p>
@@ -46,7 +46,7 @@ A production-ready SMPP-to-Kafka bridge that receives SMS messages via SMPP prot
                              ▼
 ┌─────────────┐     ┌─────────────────┐     ┌─────────────────┐
 │  HTTP/2 API │────▶│  SMPP Gateway   │────▶│  Apache Kafka   │
-│  (5G SMSF)  │     │   (Cloudhopper) │     │                 │
+│  (5G SMSF)  │     │   (smpp-core)   │     │                 │
 └─────────────┘     └────────┬────────┘     └─────────────────┘
                              │
                     ┌────────┴────────┐
@@ -59,7 +59,7 @@ A production-ready SMPP-to-Kafka bridge that receives SMS messages via SMPP prot
 
 ### Prerequisites
 
-- Java 17+
+- Java 21+ (uses virtual threads)
 - Maven 3.8+
 - Apache Kafka (or use provided docker-compose)
 
@@ -100,15 +100,19 @@ java -Xms64m -Xmx2048m \
 
 ## Configuration
 
-### SMPP Server (`settings/context.xml`)
+### SMPP Server
 
-```xml
-<bean id="serverConfiguration0" class="com.cloudhopper.smpp.SmppServerConfiguration">
-    <property name="port" value="2775"/>
-    <property name="systemId" value="smppserver"/>
-    <property name="maxConnectionSize" value="100"/>
-    <property name="defaultWindowSize" value="50"/>
-</bean>
+The SMPP server is configured programmatically using the smpp-core fluent builder API:
+
+```java
+SmppServer server = SmppServer.builder()
+    .port(2775)
+    .systemId("smppserver")
+    .maxConnections(100)
+    .windowSize(50)
+    .requestTimeout(Duration.ofSeconds(30))
+    .handler(new SmscSmppServerHandler(config))
+    .build();
 ```
 
 ### Kafka Producer (`settings/config.properties`)
@@ -268,5 +272,5 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 - [SMPP Protocol Specification](https://smpp.org/)
 - [Apache Kafka Documentation](https://kafka.apache.org/documentation/)
-- [Cloudhopper SMPP](https://github.com/twitter/cloudhopper-smpp)
+- [smpp-core Library](https://github.com/bassrehab/smpp-core) - Modern Java 21 SMPP library with virtual threads
 - [3GPP TS 29.540 - 5G SMS](https://www.3gpp.org/specifications)

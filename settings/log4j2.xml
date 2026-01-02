@@ -59,8 +59,15 @@
             <AppenderRef ref="error"/>
         </Logger>
 
-        <!-- Cloudhopper SMPP Logger -->
-        <Logger name="com.cloudhopper" level="INFO" additivity="false">
+        <!-- SMPP Core Logger -->
+        <Logger name="io.smppgateway.smpp" level="INFO" additivity="false">
+            <AppenderRef ref="stdout"/>
+            <AppenderRef ref="full"/>
+            <AppenderRef ref="error"/>
+        </Logger>
+
+        <!-- Netty Logger - reduce verbosity -->
+        <Logger name="io.netty" level="WARN" additivity="false">
             <AppenderRef ref="stdout"/>
             <AppenderRef ref="full"/>
             <AppenderRef ref="error"/>
