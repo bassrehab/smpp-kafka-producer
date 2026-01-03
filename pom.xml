@@ -34,17 +34,17 @@
     <properties>
         <jdk.version>25</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.springframework.version>6.1.14</org.springframework.version>
+        <org.springframework.version>6.1.21</org.springframework.version>
         <guava.version>33.3.1-jre</guava.version>
-        <log4j.version>2.24.3</log4j.version>
+        <log4j.version>2.25.3</log4j.version>
         <smpp.core.version>1.0.8</smpp.core.version>
         <jcommander.version>1.82</jcommander.version>
         <slf4j.version>2.0.16</slf4j.version>
-        <kafka.version>3.9.0</kafka.version>
+        <kafka.version>3.9.1</kafka.version>
         <jackson.version>2.18.2</jackson.version>
         <junit.version>5.11.4</junit.version>
         <micrometer.version>1.14.2</micrometer.version>
-        <undertow.version>2.3.18.Final</undertow.version>
+        <undertow.version>2.3.20.Final</undertow.version>
         <jmh.version>1.37</jmh.version>
         <single.jar.descriptor>spring-boot</single.jar.descriptor>
         <jar.file>target/${project.artifactId}-${project.version}.jar</jar.file>
