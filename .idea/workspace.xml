@@ -5,33 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8f46bc7-dd99-4fe1-a683-c94754e26f90" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/jarRepositories.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings/log4j2.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_cloudhopper_ch_commons_charset_3_0_2.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__com_yammer_metrics_metrics_core_2_2_0.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__javax_annotation_jsr250_api_1_0.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__log4j_log4j_1_2_17.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/Maven__org_hamcrest_hamcrest_core_1_3.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/pom.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/run.sh" beforeDir="false" afterPath="$PROJECT_DIR$/run.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/smpp-kafka-producer.iml" beforeDir="false" afterPath="$PROJECT_DIR$/smpp-kafka-producer.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/common/utilities/Utilities.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/common/utilities/Utilities.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/initialize/ConfigurationsSourceSMPP.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/initialize/ConfigurationsSourceSMPP.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/loader/ConfigLoaderClasspath.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/loader/ConfigLoaderClasspath.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/loader/ConfigLoaderExternal.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/config/loader/ConfigLoaderExternal.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/auto/DelayedRequestSenderImpl.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/controller/auto/DelayedRequestSenderImpl.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/completionservice/CompletionServiceProvider.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/completionservice/CompletionServiceProvider.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/completionservice/MonitorThreads.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/completionservice/MonitorThreads.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/consumer/EventsConsumer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/events/service/consumer/EventsConsumer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/init/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/init/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/init/ShutDownCleanup.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/init/ShutDownCleanup.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/models/SMS.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/models/SMS.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/producer/source/SMPPProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/producer/source/SMPPProducer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/producer/telemetry/TelemetryProducer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/subhadipmitra/code/module/producer/telemetry/TelemetryProducer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/test/java/com/subhadipmitra/code/module/ServerMainTest.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/test/java/com/subhadipmitra/code/module/ServerMainTest.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -47,9 +21,9 @@
   <component name="ProjectCodeStyleSettingsMigration">
     <option name="version" value="1" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="1Z9FNXiFFMz7wWU77g1jbRbkhVt" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <ConfirmationsSetting value="2" id="Add" />
@@ -63,7 +37,7 @@
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
-    "git-widget-placeholder": "feature/security-fixes-and-modernization",
+    "git-widget-placeholder": "master",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/Users/subhadipmitra/Dev/smpp-kafka-producer",
     "node.js.detected.package.eslint": "true",

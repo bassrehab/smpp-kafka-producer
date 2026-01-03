@@ -1,4 +1,4 @@
-# SMPP Gateway
+# SMPP Kafka Producer
 
 <p align="center">
   <strong>High-performance SMPP-to-Kafka bridge with 5G-ready HTTP/2 API</strong>
@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://smppgateway.io">Website</a> •
   <a href="https://docs.smppgateway.io/smpp-kafka-producer/">Documentation</a> •
-  <a href="https://docs.smppgateway.io/smpp-kafka-producer/http-api/">API Reference</a>
+  <a href="https://docs.smppgateway.io/smpp-kafka-producer/2.1/http-api.html">API Reference</a>
 </p>
 
 <p align="center">
