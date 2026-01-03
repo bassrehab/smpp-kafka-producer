@@ -44,7 +44,7 @@
         <jackson.version>2.18.2</jackson.version>
         <junit.version>5.11.4</junit.version>
         <micrometer.version>1.14.2</micrometer.version>
-        <undertow.version>2.3.18.Final</undertow.version>
+        <undertow.version>2.3.20.Final</undertow.version>
         <jmh.version>1.37</jmh.version>
         <single.jar.descriptor>spring-boot</single.jar.descriptor>
         <jar.file>target/${project.artifactId}-${project.version}.jar</jar.file>
