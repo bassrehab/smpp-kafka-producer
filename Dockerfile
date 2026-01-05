@@ -1,6 +1,6 @@
 # Multi-stage Dockerfile for SMPP-Kafka Producer
 # Stage 1: Build
-FROM eclipse-temurin:17-jdk-alpine AS builder
+FROM eclipse-temurin:21-jdk-alpine AS builder
 
 WORKDIR /build
 
@@ -22,7 +22,7 @@ COPY run.sh .
 RUN mvn clean package -DskipTests -B
 
 # Stage 2: Runtime
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 # Create non-root user for security
 RUN addgroup -g 1000 smpp && \
