@@ -70,6 +70,18 @@ mvn clean package
 # Output in out/smpp-producer/
 ```
 
+### Run the Published Image
+
+Versioned images are published to GitHub Container Registry on every release:
+
+```bash
+docker pull ghcr.io/bassrehab/smpp-kafka-producer:2.1.1
+```
+
+Available tags: `2.1.1` (or any release version), `2.1` (latest patch of a minor
+line), `latest` (current master build). See
+[all versions](https://github.com/bassrehab/smpp-kafka-producer/pkgs/container/smpp-kafka-producer).
+
 ### Run with Docker Compose
 
 ```bash
